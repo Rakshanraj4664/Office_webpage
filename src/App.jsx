@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Navbar from './components/Navbar';
+import Careers from './components/Careers';
 import Hero from './components/Hero';
-import SystemFlow from './components/SystemFlow';
 import Capabilities from './components/Capabilities';
 import Solutions from './components/Solutions';
 import ProcessTimeline from './components/ProcessTimeline';
@@ -15,6 +15,11 @@ import FloatingWidgets from './components/FloatingWidgets';
 import { fetchAllInquiries } from './utils/inquiryStorage';
 
 export default function App() {
+  if (window.location.pathname.replace(/\/$/, '') === '/careers') return <Careers />;
+  return <Home />;
+}
+
+function Home() {
   const [selectedScopes, setSelectedScopes] = useState([]);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [inquireVisible, setInquireVisible] = useState(false);
@@ -64,7 +69,6 @@ export default function App() {
 
       <main className="flex-1">
         <Hero />
-        <SystemFlow />
         <Capabilities
           selectedScopes={selectedScopes}
           onToggleScope={toggleScope}

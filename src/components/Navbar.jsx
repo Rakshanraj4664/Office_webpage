@@ -3,12 +3,12 @@ import { ArrowRight, Menu, X } from 'lucide-react';
 import { COMPANY_INFO } from '../data/protovoltData';
 
 const NAV_LINKS = [
-  { href: '#architecture', label: 'How It Works' },
   { href: '#capabilities', label: 'Capabilities' },
   { href: '#solutions', label: 'Solutions' },
   { href: '#process', label: 'Process' },
   { href: '#applications', label: 'Industries' },
-  { href: '#faq', label: 'FAQ' }
+  { href: '#faq', label: 'FAQ' },
+  { href: '/careers', label: 'Careers' }
 ];
 
 export default function Navbar({ scrollProgress }) {

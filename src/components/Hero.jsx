@@ -5,9 +5,16 @@ import { COMPANY_INFO, MARQUEE_ITEMS } from '../data/protovoltData';
 
 export default function Hero() {
   return (
-    <section className="pt-10 sm:pt-14 lg:pt-16">
-      <div className="container-shell">
-        <div className="grid items-center gap-10 lg:grid-cols-[1.12fr_0.88fr] lg:gap-12">
+    <section>
+      <div className="relative isolate overflow-hidden bg-canvas">
+        {/* The image extends to the viewport edge and fades gently behind the copy. */}
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-full sm:w-[75%] lg:w-[65%]" aria-hidden="true">
+          <img src="/assets/hero-robotics.jpg" alt="" className="h-full w-full object-cover object-[65%_center]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-canvas via-canvas/90 to-canvas/35 lg:via-canvas/40 lg:to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-canvas/40 via-transparent to-canvas/10" />
+        </div>
+        <div className="container-shell relative py-10 sm:py-14 lg:py-16">
+        <div className="lg:max-w-[590px]">
           {/* Left Copy */}
           <Reveal direction="up">
             <div className="inline-flex items-center gap-2.5 rounded-full border border-line-light bg-surface px-3.5 py-1.5 text-[12.5px] font-medium text-ink-secondary shadow-sm">
@@ -39,7 +46,7 @@ export default function Hero() {
             <div className="mt-9 grid gap-4 border-t border-line-light pt-6 sm:grid-cols-3">
               <div>
                 <strong className="block font-display text-[17px] font-bold text-ink">
-                  8 Core Areas
+                  6 Core Areas
                 </strong>
                 <span className="mt-0.5 block text-[13.5px] leading-snug text-ink-secondary">
                   Hardware, software, vision &amp; robotics in one team
@@ -64,50 +71,12 @@ export default function Hero() {
             </div>
           </Reveal>
 
-          {/* Right Visual Card */}
-          <Reveal direction="zoom" delay={100}>
-            <div className="overflow-hidden rounded-2xl border border-line-light bg-surface p-3 shadow-editorial">
-              <div className="relative overflow-hidden rounded-xl bg-obsidian">
-                <img
-                  src="/assets/hero-robotics.jpg"
-                  alt="Industrial robotic arm inspecting a precision metal part"
-                  className="aspect-[4/3] w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
-                />
-                <div className="absolute bottom-3.5 left-3.5 right-3.5 flex items-center gap-2.5 rounded-lg border border-white/15 bg-obsidian/85 px-3.5 py-2 text-xs font-medium text-white backdrop-blur-md sm:right-auto">
-                  <span className="flex h-3.5 items-end gap-[2px]" aria-hidden="true">
-                    <i className="h-full w-[3px] rounded-full bg-volt-bright animate-waveBar" />
-                    <i
-                      className="h-full w-[3px] rounded-full bg-volt-bright animate-waveBar"
-                      style={{ animationDelay: '180ms' }}
-                    />
-                    <i
-                      className="h-full w-[3px] rounded-full bg-volt-bright animate-waveBar"
-                      style={{ animationDelay: '340ms' }}
-                    />
-                    <i
-                      className="h-full w-[3px] rounded-full bg-volt-bright animate-waveBar"
-                      style={{ animationDelay: '120ms' }}
-                    />
-                  </span>
-                  <span>Smart Vision &amp; Precision Robotics</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between px-2 pt-3 pb-1 text-[13px]">
-                <span className="font-medium text-ink-secondary">
-                  Robotic Assembly &amp; Vision Inspection
-                </span>
-                <span className="rounded bg-volt-soft px-2 py-0.5 font-display text-[11.5px] font-bold text-volt">
-                  {COMPANY_INFO.name}
-                </span>
-              </div>
-            </div>
-          </Reveal>
+        </div>
         </div>
       </div>
 
       {/* Infinite Capability Marquee */}
-      <div className="mt-14 overflow-hidden border-y border-line-light bg-surface py-3.5">
+      <div className="overflow-hidden border-y border-line-light bg-surface py-3.5">
         <div className="flex w-max animate-marquee items-center">
           {[0, 1].map((dup) => (
             <div

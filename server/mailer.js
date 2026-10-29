@@ -367,3 +367,27 @@ export async function sendOfficeNotificationEmail(record) {
     };
   }
 }
+
+// Applications are sent directly to the office and are not stored with public inquiries.
+export async function sendCareerApplication(fields, resume) {
+  const cfg = getSmtpConfig();
+  if (!cfg.isConfigured) throw new Error('Email delivery is not configured');
+  const subject = `[Protovolt.io Careers] ${fields.role} — ${fields.name}`;
+  const lines = [
+    ['Name', fields.name], ['Email', fields.email], ['Phone', fields.phone],
+    ['Role / area of interest', fields.role], ['Experience', fields.experience],
+    ['Location', fields.location], ['Portfolio / LinkedIn', fields.portfolio || 'Not provided'],
+    ['Message', fields.message || 'Not provided']
+  ];
+  const transporter = nodemailer.createTransport({
+    host: cfg.host, port: cfg.port, secure: cfg.secure,
+    auth: { user: cfg.user, pass: cfg.pass }
+  });
+  await transporter.sendMail({
+    from: `"${COMPANY.name} Website" <${cfg.user}>`, to: cfg.officeEmail,
+    replyTo: { name: fields.name, address: fields.email }, subject,
+    text: `New career application\n\n${lines.map(([label, value]) => `${label}: ${value}`).join('\n')}\n\nResume attached.`,
+    html: `<h2>New career application</h2>${lines.map(([label, value]) => `<p><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value).replace(/\n/g, '<br>')}</p>`).join('')}<p>Resume attached.</p>`,
+    attachments: [{ filename: resume.filename, content: resume.content }]
+  });
+}

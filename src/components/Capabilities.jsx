@@ -35,7 +35,7 @@ export default function Capabilities({ selectedScopes, onToggleScope }) {
             Core Areas
           </span>
           <h2 className="mt-3 font-display text-[28px] font-bold leading-[1.15] tracking-tight text-ink sm:text-[36px]">
-            Eight core capabilities under one roof.
+            Six core capabilities under one roof.
           </h2>
           <p className="mt-3 text-[16px] text-ink-secondary">
             We bring mechanical design, electronics, software, and AI together so your project moves smoothly from
@@ -43,13 +43,13 @@ export default function Capabilities({ selectedScopes, onToggleScope }) {
           </p>
         </Reveal>
 
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {CORE_CAPABILITIES.map((cap, idx) => {
             const Icon = ICON_MAP[cap.icon] || Cpu;
             const isSelected = selectedScopes.includes(cap.id);
 
             return (
-              <Reveal key={cap.id} direction="up" delay={(idx % 4) * 60}>
+              <Reveal key={cap.id} direction="up" delay={(idx % 3) * 60}>
                 <article
                   className={`flex h-full flex-col justify-between rounded-xl border p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-card ${
                     isSelected
