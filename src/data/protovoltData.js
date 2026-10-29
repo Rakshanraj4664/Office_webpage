@@ -15,9 +15,7 @@ export const MARQUEE_ITEMS = [
   'AI & Machine Learning',
   'Machine Vision',
   'Industrial IoT',
-  'Embedded Systems',
-  'Rapid Prototyping',
-  'Product Development'
+  'Rapid Prototyping'
 ];
 
 export const SYSTEM_FLOW_STEPS = [
@@ -83,9 +81,10 @@ export const CORE_CAPABILITIES = [
     title: 'Robotics',
     icon: 'robotics',
     summary:
-      'Complete robotic cells, collaborative robots, custom grippers, and automated pick-and-place systems.',
+      'Complete robotic systems, collaborative robots, custom grippers, and automated pick-and-place systems.',
     points: [
       'Robotic & Cobot Workcells',
+      'AMR & AVG',
       'Custom Grippers & Tooling',
       'Vision-Guided Pick & Place'
     ]
@@ -131,41 +130,15 @@ export const CORE_CAPABILITIES = [
   },
   {
     num: '06',
-    id: 'Embedded Systems',
-    title: 'Embedded Systems',
-    icon: 'embedded',
-    summary:
-      'Custom circuit boards (PCBs), industrial controllers, and reliable embedded software built for 24/7 use.',
-    points: [
-      'Custom PCB Design',
-      'Embedded Firmware & Linux',
-      'Rugged Industrial Controllers'
-    ]
-  },
-  {
-    num: '07',
     id: 'Rapid Prototyping',
     title: 'Rapid Prototyping',
     icon: 'prototyping',
     summary:
-      'Fast working prototypes combining CAD design, 3D printing, machined parts, and electronics to test ideas early.',
+      'From working prototypes to production-ready products, including custom electronics and embedded systems.',
     points: [
-      'Working Proof-of-Concepts',
-      'CAD, 3D Printing & CNC Parts',
-      'Early Design Validation'
-    ]
-  },
-  {
-    num: '08',
-    id: 'Product Development',
-    title: 'Product Development',
-    icon: 'product',
-    summary:
-      'Complete product engineering from durable enclosure design and testing to production-ready hardware.',
-    points: [
-      'Industrial Enclosures',
-      'Design for Manufacturing',
-      'Production Test Fixtures'
+      'Working Proof-of-Concepts & Design Validation',
+      'Embedded Systems, PCBs & Firmware',
+      'Product Design & Manufacturing'
     ]
   }
 ];
@@ -247,7 +220,7 @@ export const SOLUTIONS_TABS = [
       'Modbus, OPC-UA, CAN & wireless connectivity',
       'Live uptime, output & energy tracking'
     ],
-    scopes: ['Embedded Systems', 'IoT & IIoT', 'Product Development']
+    scopes: ['Rapid Prototyping', 'IoT & IIoT']
   },
   {
     key: 'prototyping',
@@ -273,7 +246,7 @@ export const SOLUTIONS_TABS = [
       'Durable industrial enclosure engineering',
       'Complete manufacturing files & pilot test rigs'
     ],
-    scopes: ['Rapid Prototyping', 'Product Development', 'Embedded Systems']
+    scopes: ['Rapid Prototyping']
   }
 ];
 
@@ -330,8 +303,8 @@ export const INDUSTRIES = [
   },
   {
     idx: '02',
-    title: 'Automotive & EV',
-    desc: 'Part quality inspection, robotic assembly cells, electronic test rigs, and battery module checks.'
+    title: 'Automotive',
+    desc: 'Part quality inspection, robotic assembly systems, and electronic test rigs.'
   },
   {
     idx: '03',

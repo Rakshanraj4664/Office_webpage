@@ -3,7 +3,8 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { getSmtpConfig, sendOfficeNotificationEmail } from './mailer.js';
+import { getSmtpConfig, sendOfficeNotificationEmail, sendCareerApplication } from './mailer.js';
+import Busboy from 'busboy';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -62,6 +63,50 @@ const server = http.createServer((req, res) => {
       officeEmail: cfg.officeEmail,
       smtpConfigured: cfg.isConfigured
     });
+  }
+
+  if (pathname === '/api/careers' && req.method === 'POST') {
+    let parser;
+    try {
+      parser = Busboy({ headers: req.headers, limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 8, fieldSize: 4000, parts: 9 } });
+    } catch {
+      return sendJson(res, 400, { error: 'Please submit the application form with a resume.' });
+    }
+    const fields = {};
+    let resume = null;
+    let invalid = false;
+    parser.on('field', (name, value, info) => {
+      if (info.valueTruncated || !['name', 'email', 'phone', 'role', 'experience', 'location', 'portfolio', 'message'].includes(name)) invalid = true;
+      else fields[name] = value.trim();
+    });
+    parser.on('file', (name, stream, info) => {
+      const chunks = [];
+      if (name !== 'resume' || !/\.(pdf|doc|docx)$/i.test(info.filename)) invalid = true;
+      stream.on('limit', () => { invalid = true; });
+      stream.on('data', chunk => chunks.push(chunk));
+      stream.on('end', () => { resume = { filename: path.basename(info.filename).replace(/[\r\n]/g, ''), content: Buffer.concat(chunks) }; });
+    });
+    parser.on('filesLimit', () => { invalid = true; });
+    parser.on('fieldsLimit', () => { invalid = true; });
+    parser.on('partsLimit', () => { invalid = true; });
+    parser.on('error', () => { if (!res.headersSent) sendJson(res, 400, { error: 'Could not read application.' }); });
+    parser.on('close', async () => {
+      if (res.headersSent) return;
+      if (invalid || !resume?.content.length || !fields.name || !fields.email || !fields.phone || !fields.role || !fields.experience || !fields.location ||
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email) ||
+          ['name', 'email', 'phone', 'role', 'experience', 'location', 'portfolio'].some(key => (fields[key] || '').length > 200)) {
+        return sendJson(res, 400, { error: 'Please complete the required fields and attach a PDF, DOC or DOCX resume of up to 5 MB.' });
+      }
+      try {
+        await sendCareerApplication(fields, resume);
+        return sendJson(res, 200, { status: 'sent' });
+      } catch (err) {
+        console.error('[Careers] Email delivery failed:', err.message);
+        return sendJson(res, 503, { error: 'We could not send your application right now. Please try again later or email the office directly.' });
+      }
+    });
+    req.pipe(parser);
+    return;
   }
 
   if (pathname === '/api/inquiries' && req.method === 'GET') {

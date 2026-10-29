@@ -52,11 +52,11 @@ export default function Footer({ inquiryCount, onOpenInbox }) {
               Explore
             </span>
             <ul className="mt-3.5 space-y-2 text-[14px] text-ink-secondary">
-              <li><a href="#architecture" className="hover:text-volt">How It Works</a></li>
               <li><a href="#solutions" className="hover:text-volt">Solutions</a></li>
               <li><a href="#process" className="hover:text-volt">Our Process</a></li>
               <li><a href="#applications" className="hover:text-volt">Industries</a></li>
               <li><a href="#faq" className="hover:text-volt">FAQ</a></li>
+              <li><a href="/careers" className="hover:text-volt">Careers</a></li>
             </ul>
           </div>
 
