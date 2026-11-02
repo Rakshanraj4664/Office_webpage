@@ -3,16 +3,13 @@ import { ArrowRight } from 'lucide-react';
 import Reveal from './Reveal';
 import { COMPANY_INFO, MARQUEE_ITEMS } from '../data/protovoltData';
 
-export default function Hero() {
+export default function Hero({ sceneReady }) {
   return (
     <section>
-      <div className="relative isolate overflow-hidden bg-canvas">
-        {/* The image extends to the viewport edge and fades gently behind the copy. */}
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-full sm:w-[75%] lg:w-[65%]" aria-hidden="true">
-          <img src="/assets/hero-robotics.jpg" alt="" className="h-full w-full object-cover object-[65%_center]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-canvas via-canvas/90 to-canvas/35 lg:via-canvas/40 lg:to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-canvas/40 via-transparent to-canvas/10" />
-        </div>
+      <div className="relative isolate overflow-hidden">
+        {!sceneReady && <div className="hero-static-fallback" aria-hidden="true" />}
+        {/* A soft scrim keeps the copy legible over the scrolling 3D scene. */}
+        <div className="hero-copy-scrim pointer-events-none absolute inset-0" aria-hidden="true" />
         <div className="container-shell relative py-10 sm:py-14 lg:py-16">
         <div className="lg:max-w-[590px]">
           {/* Left Copy */}
