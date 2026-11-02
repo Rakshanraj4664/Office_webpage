@@ -55,22 +55,6 @@ export default function RobotScene({ activeSolution = 0, onReady }) {
         fill.position.set(-8, 6, -4); scene.add(fill);
         const world = createReferenceScene(scene);
         world.setProp(selectedRef.current);
-        // Model is hosted locally, not pulled from a third-party CDN at runtime.
-        try {
-          const [{ GLTFLoader }, mapResponse] = await Promise.all([
-            import('three/addons/loaders/GLTFLoader.js'),
-            fetch('/assets/models/apex6_joint_map.json')
-          ]);
-          if (!mapResponse.ok) throw new Error('Robot joint map unavailable');
-          const [asset, map] = await Promise.all([
-            new GLTFLoader().loadAsync('/assets/models/apex6_robot.glb'), mapResponse.json()
-          ]);
-          if (disposed) return;
-          world.setDetailedRobot(asset.scene, map);
-        } catch (error) {
-          console.warn('Detailed robot unavailable; using the built-in model.', error);
-        }
-        if (disposed) return;
         const V = (x, y, z) => new THREE.Vector3(x, y, z);
         const x = world.stageX;
         const poses = [

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowRight, Check } from 'lucide-react';
 import Reveal from './Reveal';
+import WhatsAppChat from './WhatsAppChat';
 import { COMPANY_INFO, CORE_CAPABILITIES } from '../data/protovoltData';
 import { downloadTextReceipt, submitInquiryRecord } from '../utils/inquiryStorage';
 
@@ -376,6 +377,9 @@ export default function InquireSection({
                   <strong className="font-display text-ink hover:text-volt">
                     <a href={COMPANY_INFO.phoneHref}>{COMPANY_INFO.phoneDisplay}</a>
                   </strong>
+                </div>
+                <div className="pt-1">
+                  <WhatsAppChat />
                 </div>
                 <div>
                   <small className="block text-xs text-ink-muted">Office Address</small>
