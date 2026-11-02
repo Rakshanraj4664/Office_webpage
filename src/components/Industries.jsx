@@ -43,7 +43,7 @@ export default function Industries() {
                 Why {COMPANY_INFO.name}
               </span>
               <h3 className="mt-3 font-display text-[23px] font-bold leading-snug text-ink">
-                One engineering partner from prototype to 24/7 operation.
+                One engineering partner from system design to 24/7 operation.
               </h3>
               <p className="mt-3 text-[15px] leading-relaxed text-ink-secondary">
                 Projects slow down when mechanics, electronics, vision, and software are split across separate vendors.{' '}

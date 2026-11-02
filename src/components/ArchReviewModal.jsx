@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowRight, Calendar, Check, X } from 'lucide-react';
 import { downloadBookingIcs, submitInquiryRecord } from '../utils/inquiryStorage';
 
@@ -23,13 +23,22 @@ const SESSION_TRACKS = [
   }
 ];
 
-const TIME_SLOTS = [
-  { label: '10:00 AM', slot: '10:00 AM IST', hour: 10, min: 0 },
-  { label: '11:30 AM', slot: '11:30 AM IST', hour: 11, min: 30 },
-  { label: '02:30 PM', slot: '02:30 PM IST', hour: 14, min: 30 },
-  { label: '04:30 PM', slot: '04:30 PM IST', hour: 16, min: 30 },
-  { label: '06:00 PM', slot: '06:00 PM IST', hour: 18, min: 0 }
-];
+const TIME_SLOTS = Array.from({ length: 48 }, (_, i) => {
+  const hour = Math.floor(i / 2), min = (i % 2) * 30;
+  const label = `${String(hour % 12 || 12).padStart(2, '0')}:${String(min).padStart(2, '0')} ${hour < 12 ? 'AM' : 'PM'}`;
+  return { label, slot: `${label} IST`, hour, min };
+});
+
+// Dates and slots are interpreted in the office's time zone, not the visitor's.
+function istToday() {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+}
+function dateDetails(iso) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return { iso: '', year: 0, monthIdx: 0, day: 0, fullLabel: 'Select a date' };
+  const [year, month, day] = iso.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return { iso, year, monthIdx: month - 1, day, fullLabel: new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }).format(date) };
+}
 
 const FORMATS = [
   { value: 'Video Call (Meet / Teams)', label: 'Video Call' },
@@ -37,43 +46,14 @@ const FORMATS = [
   { value: 'On-Site Visit', label: 'On-Site Visit' }
 ];
 
-function computeBusinessDates() {
-  const dows = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const dates = [];
-  const cursor = new Date();
-  cursor.setHours(12, 0, 0, 0);
-
-  while (dates.length < 6) {
-    cursor.setDate(cursor.getDate() + 1);
-    if (cursor.getDay() === 0) continue;
-    const yyyy = cursor.getFullYear();
-    const mm = String(cursor.getMonth() + 1).padStart(2, '0');
-    const dd = String(cursor.getDate()).padStart(2, '0');
-    const dow = dows[cursor.getDay()];
-    const mon = months[cursor.getMonth()];
-    dates.push({
-      iso: `${yyyy}-${mm}-${dd}`,
-      dow,
-      shortDate: `${cursor.getDate()} ${mon}`,
-      fullLabel: `${dow}, ${cursor.getDate()} ${mon} ${yyyy}`,
-      year: yyyy,
-      monthIdx: cursor.getMonth(),
-      day: cursor.getDate()
-    });
-  }
-  return dates;
-}
-
 export default function ArchReviewModal({
   open,
   onClose,
   selectedScopes
 }) {
-  const dates = useMemo(() => computeBusinessDates(), []);
   const [trackIdx, setTrackIdx] = useState(1);
-  const [dateIdx, setDateIdx] = useState(0);
-  const [slotIdx, setSlotIdx] = useState(2);
+  const [dateIso, setDateIso] = useState(istToday);
+  const [slotIdx, setSlotIdx] = useState(29);
   const [format, setFormat] = useState(FORMATS[0].value);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -103,7 +83,7 @@ export default function ArchReviewModal({
   if (!open) return null;
 
   const selectedTrack = SESSION_TRACKS[trackIdx];
-  const selectedDate = dates[dateIdx];
+  const selectedDate = dateDetails(dateIso);
   const selectedSlot = TIME_SLOTS[slotIdx];
 
   const handleSubmit = async (e) => {
@@ -116,6 +96,12 @@ export default function ArchReviewModal({
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       setError('Please enter a valid work email address.');
+      return;
+    }
+
+    const selectedUtc = Date.UTC(selectedDate.year, selectedDate.monthIdx, selectedDate.day, selectedSlot.hour, selectedSlot.min) - 330 * 60_000;
+    if (!dateIso || !Number.isFinite(selectedUtc) || selectedUtc <= Date.now()) {
+      setError('Please select a future date and time in IST.');
       return;
     }
 
@@ -230,57 +216,18 @@ export default function ArchReviewModal({
                 </div>
               </div>
 
-              {/* 2. Date Selection */}
-              <div className="mt-5">
-                <span className="block font-display text-xs font-bold uppercase tracking-wider text-ink-secondary">
-                  2. Select Date
-                </span>
-                <div className="mt-2.5 grid grid-cols-3 gap-2 sm:grid-cols-6">
-                  {dates.map((d, idx) => {
-                    const active = idx === dateIdx;
-                    return (
-                      <button
-                        key={d.iso}
-                        type="button"
-                        onClick={() => setDateIdx(idx)}
-                        className={`flex flex-col items-center rounded-xl border py-2.5 transition-all ${
-                          active
-                            ? 'border-volt bg-volt text-white shadow-sm'
-                            : 'border-line-light bg-canvas/60 text-ink hover:border-volt'
-                        }`}
-                      >
-                        <span className="text-[11px] font-medium opacity-80">{d.dow}</span>
-                        <span className="font-display text-[13px] font-bold">{d.shortDate}</span>
-                      </button>
-                    );
-                  })}
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="review-date" className="block font-display text-xs font-bold uppercase tracking-wider text-ink-secondary">2. Select Date (IST)</label>
+                  <input id="review-date" type="date" min={istToday()} value={dateIso} onChange={(e) => setDateIso(e.target.value)} className="input-field mt-2.5" required />
                 </div>
-              </div>
-
-              {/* 3. Time Slot Selection */}
-              <div className="mt-5">
-                <span className="block font-display text-xs font-bold uppercase tracking-wider text-ink-secondary">
-                  3. Select Time (IST)
-                </span>
-                <div className="mt-2.5 flex flex-wrap gap-2">
-                  {TIME_SLOTS.map((sl, idx) => {
-                    const active = idx === slotIdx;
-                    return (
-                      <button
-                        key={sl.slot}
-                        type="button"
-                        onClick={() => setSlotIdx(idx)}
-                        className={`rounded-lg border px-3.5 py-2 font-display text-[13px] font-semibold transition-all ${
-                          active
-                            ? 'border-volt bg-volt text-white'
-                            : 'border-line-light bg-canvas/60 text-ink hover:border-volt'
-                        }`}
-                      >
-                        {sl.label}
-                      </button>
-                    );
-                  })}
+                <div>
+                  <label htmlFor="review-time" className="block font-display text-xs font-bold uppercase tracking-wider text-ink-secondary">3. Select Time (IST)</label>
+                  <select id="review-time" value={slotIdx} onChange={(e) => setSlotIdx(Number(e.target.value))} className="input-field mt-2.5">
+                    {TIME_SLOTS.map((slot, index) => <option key={slot.slot} value={index}>{slot.label}</option>)}
+                  </select>
                 </div>
+                <p className="text-xs text-ink-muted sm:col-span-2">All times are in India Standard Time. Your requested slot is subject to confirmation. If accepted, a Google Meet invitation will be sent for every meeting format.</p>
               </div>
 
               {/* 4. Meeting Format */}

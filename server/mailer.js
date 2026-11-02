@@ -163,6 +163,7 @@ export function buildOfficeEmailContent(record) {
           `Timeline       : ${record.timeline}`,
           ''
         ]),
+    ...(record.decisionUrl ? [`Review request (accept or decline): ${record.decisionUrl}`, ''] : []),
     isBooking ? 'DISCUSSION TOPIC' : 'PROJECT DETAILS',
     '------------------------------------------------------------',
     record.overview,
@@ -210,6 +211,7 @@ export function buildOfficeEmailContent(record) {
 
     <div style="padding:24px 26px;">
       ${bookingBannerHtml}
+      ${record.decisionUrl ? `<div style="margin:20px 0;padding:16px;background:#FFF5F0;border-radius:8px"><p>Review this tentative request. The link opens a confirmation page; it does not make a decision automatically.</p><a href="${escapeHtml(record.decisionUrl)}" style="display:inline-block;padding:10px 18px;background:#DF4B18;color:white;border-radius:7px;text-decoration:none;font-weight:700">Accept</a> <a href="${escapeHtml(record.decisionUrl)}" style="display:inline-block;padding:10px 18px;background:#111317;color:white;border-radius:7px;text-decoration:none;font-weight:700">Decline</a></div>` : ''}
 
       <!-- Client Details Table -->
       <div style="font-size:11.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#727885;margin-bottom:8px;">

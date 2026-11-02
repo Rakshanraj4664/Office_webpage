@@ -24,8 +24,7 @@ export default function Footer() {
               </div>
             </a>
             <p className="mt-4 max-w-sm text-[14.2px] leading-relaxed text-ink-secondary">
-              Custom industrial automation, robotics, AI, machine vision, IIoT, embedded hardware, and rapid
-              prototyping.
+              Custom industrial automation, robotics, AI, machine vision, IIoT, and embedded hardware.
             </p>
             <div className="mt-3 text-xs font-medium text-ink-muted">
               GST: <span className="font-display font-semibold text-ink">{COMPANY_INFO.gst}</span>
@@ -41,8 +40,8 @@ export default function Footer() {
               <li><a href="#capabilities" className="hover:text-volt">Industrial Automation</a></li>
               <li><a href="#capabilities" className="hover:text-volt">Robotics</a></li>
               <li><a href="#capabilities" className="hover:text-volt">AI &amp; Machine Vision</a></li>
-              <li><a href="#capabilities" className="hover:text-volt">IIoT &amp; Embedded Systems</a></li>
-              <li><a href="#capabilities" className="hover:text-volt">Prototyping &amp; Products</a></li>
+              <li><a href="#capabilities" className="hover:text-volt">Industrial IoT</a></li>
+              <li><a href="#capabilities" className="hover:text-volt">LightGuide Augmented Intelligence</a></li>
             </ul>
           </div>
 

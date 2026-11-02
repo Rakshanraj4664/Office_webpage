@@ -7,7 +7,7 @@ export function createReferenceScene(scene) {
   const V2 = (x, y) => new THREE.Vector2(x, y);
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const PERIOD = 5;
-  let activeProp = 0, printerIdx = 0, onTab = () => {}, onPrinter = () => {};
+  let activeProp = 0, onTab = () => {};
   /* materials */
   var M = {
     paint: new THREE.MeshPhysicalMaterial({ color: C(0xf1f3f6), roughness: 0.34, metalness: 0.0, clearcoat: 1, clearcoatRoughness: 0.14 }),
@@ -304,123 +304,148 @@ export function createReferenceScene(scene) {
     } });
   })();
 
-  /* prop 3: 3D printers printing the company name */
-  var printText = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1).translate(0, 0, 0.5), new THREE.MeshStandardMaterial({ color: C(0xd8ae4c), roughness: 0.26, metalness: 0.9 }), 9000);
-  printText.castShadow = true; printText.receiveShadow = true; printText.count = 0; printText.frustumCulled = false;
-  var TXT_W = 340, TXT_H = 48, textReady = false;
-  function buildPrintText() {
-    var cv = document.createElement('canvas'); cv.width = TXT_W; cv.height = TXT_H;
-    var cx = cv.getContext('2d'); cx.fillStyle = '#000'; cx.fillRect(0, 0, TXT_W, TXT_H); cx.fillStyle = '#fff';
-    cx.textBaseline = 'middle'; cx.textAlign = 'center';
-    cx.font = '700 40px "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif';
-    if ('letterSpacing' in cx) cx.letterSpacing = '3px';
-    var tw = cx.measureText('PROTOVOLT').width; if (tw > TXT_W - 8) { cx.font = '700 ' + Math.floor(40 * (TXT_W - 8) / tw) + 'px "IBM Plex Sans", Arial, sans-serif'; }
-    cx.fillText('PROTOVOLT', TXT_W / 2, TXT_H / 2 + 2);
-    var d = cx.getImageData(0, 0, TXT_W, TXT_H).data, m = new THREE.Matrix4(), q = new THREE.Quaternion(), pos = new THREE.Vector3(), sc = new THREE.Vector3(), n = 0, px = 1 / TXT_W, hh = TXT_H * px / 2;
-    for (var y = 0; y < TXT_H; y++) for (var x = 0; x < TXT_W; x++) {
-      if (d[(y * TXT_W + x) * 4] > 120 && n < 9000) { pos.set((x + 0.5) * px - 0.5, hh - (y + 0.5) * px, 0); sc.set(px * 1.04, px * 1.04, 1); m.compose(pos, q, sc); printText.setMatrixAt(n++, m); }
-    }
-    printText.count = n; printText.instanceMatrix.needsUpdate = true; textReady = true;
-  }
-  var fontWait = (document.fonts && document.fonts.load) ? Promise.race([document.fonts.load('700 40px "IBM Plex Sans"'), new Promise(function (r) { setTimeout(r, 1800); })]) : Promise.resolve();
-  fontWait.then(buildPrintText, buildPrintText);
+  /* LightGuide: a projected-guidance assembly workstation. */
+  (function () {
+    var g = new THREE.Group(); stage.add(g);
+    var frameMat = new THREE.MeshStandardMaterial({ color: 0x9ba4a8, metalness: 0.75, roughness: 0.42 });
+    var tabletopMat = new THREE.MeshStandardMaterial({ color: 0x444c50, metalness: 0.28, roughness: 0.73 });
+    var fixtureMat = new THREE.MeshStandardMaterial({ color: 0xa8afb0, metalness: 0.72, roughness: 0.38 });
+    var housingMat = new THREE.MeshStandardMaterial({ color: 0x252d31, metalness: 0.38, roughness: 0.57 });
+    var plasticMat = new THREE.MeshStandardMaterial({ color: 0x1b2327, metalness: 0.12, roughness: 0.68 });
+    var lensMat = new THREE.MeshPhysicalMaterial({ color: 0x1c4a56, metalness: 0.42, roughness: 0.16, clearcoat: 0.7 });
+    var projectionMat = new THREE.MeshBasicMaterial({ color: 0x65ffca, transparent: true, opacity: 0.95, side: THREE.DoubleSide, depthWrite: false, toneMapped: false });
+    var beamMat = new THREE.MeshBasicMaterial({ color: 0xa8ffe4, transparent: true, opacity: 0.045, side: THREE.DoubleSide, depthWrite: false, toneMapped: false });
 
-  var PRINTERS = [
-    { s: 0.78, h: 0.86, open: true, white: true, label: 'A1 mini' },
-    { s: 1.0, h: 1.0, open: true, white: false, label: 'A1' },
-    { s: 1.0, h: 1.0, open: false, white: false, label: 'P1S' },
-    { s: 1.04, h: 1.08, open: false, white: false, label: 'Creality' },
-    { s: 1.32, h: 1.0, open: true, white: false, label: 'Neptune 4 Max', wide: true }
-  ];
-  function buildPrinter(v) {
-    var g = new THREE.Group(), P = { g: g, v: v }, fr = v.white ? M.paint : M.graphite, H = 2.9 * v.h;
-    g.scale.setScalar(v.s);
-    mesh(rboxFlat(3.5, 3.9, 0.36, 0.14), M.graphite, g, 0, 0.18, 0);
-    mesh(rboxFlat(3.5, 0.5, 0.04, 0.05), v.white ? M.paint : M.navy, g, 0, 0.37, 1.7);
-    var scr = mesh(BoxG(0.9, 0.26, 0.04), M.ink, g, 0.9, 0.2, 1.96); mesh(BoxG(0.5, 0.03, 0.01), glowGold, scr, -0.1, 0.02, 0.025, 0, 0, 0, true);
-    P.bed = new THREE.Group(); P.bed.position.y = 0.4; g.add(P.bed);
-    mesh(rboxFlat(2.8, 2.8, 0.1, 0.08), M.graphite, P.bed, 0, 0.05, 0);
-    mesh(rboxFlat(2.62, 2.62, 0.03, 0.05), M.pei, P.bed, 0, 0.115, 0);
-    var pw = v.wide ? 0.34 : 0.26, px = v.wide ? 1.78 : 1.66;
-    [-1, 1].forEach(function (s) {
-      mesh(BoxG(pw, H, 0.5), fr, g, s * px, 0.36 + H / 2, 0);
-      cylY(0.04, 0.04, H, M.alu, g, s * (px - pw / 2 - 0.08), 0.36 + H / 2, 0.1);
-      mesh(BoxG(pw + 0.04, 0.05, 0.54), M.gold, g, s * px, 0.36 + H, 0, 0, 0, 0, true);
+    // Aluminum extrusion workbench, feet, cross braces and inset work surface.
+    mesh(rboxFlat(4.6, 3.1, 0.16, 0.06), frameMat, g, 0, 0.64, 0);
+    mesh(rboxFlat(4.3, 2.8, 0.055, 0.04), tabletopMat, g, 0, 0.74, 0);
+    [-2.05, 2.05].forEach(function (x) {
+      [-1.25, 1.25].forEach(function (z) {
+        mesh(BoxG(0.13, 0.61, 0.13), frameMat, g, x, 0.31, z);
+        cylY(0.12, 0.12, 0.05, M.rubber, g, x, 0.03, z);
+      });
+      mesh(BoxG(0.1, 0.1, 2.5), frameMat, g, x, 0.22, 0);
     });
-    mesh(BoxG(px * 2 + pw, 0.18, 0.4), fr, g, 0, 0.36 + H + 0.09, 0);
-    /* gantry + toolhead */
-    P.gantry = new THREE.Group(); g.add(P.gantry); P.gantry.position.set(0, 1.4, 0.05);
-    mesh(BoxG(px * 2 - pw, 0.22, 0.3), M.graphite, P.gantry, 0, 0, 0);
-    mesh(BoxG(px * 2 - pw - 0.1, 0.05, 0.07), M.alu, P.gantry, 0, 0.0, 0.18);
-    P.head = new THREE.Group(); P.head.position.set(0, 0, 0.34); P.gantry.add(P.head);
-    mesh(rboxZ(0.62, 0.56, 0.5, 0.07), M.navy, P.head, 0, -0.1, 0);
-    for (var f = 0; f < 5; f++) mesh(BoxG(0.4, 0.014, 0.36), M.alu, P.head, 0, 0.22 + f * 0.04, -0.02);
-    mesh(BoxG(0.34, 0.28, 0.34), M.graphite, P.head, 0, -0.5, 0.06);
-    mesh(new THREE.ConeGeometry(0.075, 0.22, 24), M.gold, P.head, 0, -0.74, 0.06, Math.PI, 0, 0);
-    mesh(BoxG(0.2, 0.02, 0.02), glowWhite, P.head, 0, -0.38, 0.24, 0, 0, 0, true);
-    P.tip = -0.85;
-    /* spool + filament */
-    var sp = new THREE.Group(); sp.position.set(0, 0.36 + H + 0.18 + 0.62, -0.62); g.add(sp);
-    cylX(0.62, 0.34, M.paint, sp, 0, 0, 0); cylX(0.34, 0.37, M.gold, sp, 0, 0, 0); cylX(0.1, 0.4, M.alu, sp, 0, 0, 0);
-    [-1, 1].forEach(function (s) { cylX(0.66, 0.025, M.graphite, sp, s * 0.18, 0, 0); });
-    mesh(BoxG(0.1, 0.5, 0.1), M.graphite, g, 0, 0.36 + H + 0.18 + 0.2, -0.45);
-    P.spool = sp;
-    P.fil = mesh(CylG(0.018, 0.018, 1, 8), M.gold, g, 0, 0, 0, 0, 0, 0, true);
-    P.spoolOut = V(0, sp.position.y + 0.64, sp.position.z + 0.0);
-    /* enclosure */
-    if (!v.open) {
-      var gy = 0.36 + H / 2 + 0.1;
-      mesh(BoxG(px * 2 + pw, H + 0.18, 0.05), M.glass, g, 0, gy, -1.9, 0, 0, 0, true);
-      [-1, 1].forEach(function (s) { mesh(BoxG(0.05, H + 0.18, 3.8), M.glass, g, s * (px + pw / 2), gy, 0, 0, 0, 0, true); });
-      mesh(BoxG(px * 2 + pw, H + 0.18, 0.05), M.glass, g, 0, gy, 1.9, 0, 0, 0, true);
-      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (s) { mesh(BoxG(0.08, H + 0.2, 0.08), M.graphite, g, s[0] * (px + pw / 2), gy, s[1] * 1.9); });
-      mesh(BoxG(px * 2 + pw + 0.1, 0.1, 3.9), M.graphite, g, 0, 0.36 + H + 0.2, 0);
-      sp.position.y = 0.36 + H + 0.2 + 0.64; mesh(BoxG(0.1, 0.5, 0.1), M.graphite, g, 0, 0.36 + H + 0.45, -0.45); P.spoolOut.set(0, sp.position.y + 0.64, sp.position.z);
-    }
-    stage.add(g); g.visible = false;
-    return P;
-  }
-  var printers = PRINTERS.map(buildPrinter), curP = printers[0];
-  var PRINT_T = 12, CYCLE = 19, LAYERS = 26, TXT_WORLD = 2.2, THICK = 0.2, BED_TOP = 0.4 + 0.13;
-  var tmpA = V(0, 0, 0), tmpB = V(0, 0, 0), UPV = V(0, 1, 0), qq = new THREE.Quaternion();
-  function placeFil(P, a, b) {
-    var len = a.distanceTo(b); P.fil.position.copy(a).add(b).multiplyScalar(0.5); P.fil.scale.set(1, len, 1);
-    qq.setFromUnitVectors(UPV, tmpB.copy(b).sub(a).normalize()); P.fil.quaternion.copy(qq);
-  }
-  function setPrinter(i) {
-    printers.forEach(function (p, k) { p.g.visible = k === i && activePropIs(3); });
-    curP = printers[i]; curP.bed.add(printText);
-    printText.rotation.x = -Math.PI / 2; printText.position.set(0, 0.13, 0.02); printText.scale.set(TXT_WORLD, TXT_WORLD, 0.001);
-  }
-  function activePropIs(n) { return activeProp === n; }
-  var NOZ_Z = 0.45;
-  props.push({ g: new THREE.Group(), update: function (T) {
-    if (!textReady) return;
-    var P = curP, u = T % CYCLE, printing = u < PRINT_T;
-    var prog = printing ? u / PRINT_T : 1, layer = Math.max(1, Math.ceil(prog * LAYERS)) / LAYERS;
-    var h = printing ? layer * THICK : (u < 16.8 ? THICK : THICK * (1 - clamp((u - 16.8) / 1.0, 0, 1)));
-    printText.scale.z = Math.max(0.001, h);
-    var lift = printing ? 1 - clamp(u / 1.0, 0, 1) : clamp((u - PRINT_T) / 1.2, 0, 1);
-    P.gantry.position.y = BED_TOP + 0.02 + h - P.tip + lift * 0.75;
-    P.head.position.x = Math.sin(T * 3.1) * 0.95 * (1 - lift);
-    P.bed.position.z = (NOZ_Z - 0.02 + Math.sin(T * 0.95) * 0.1) * (1 - lift) + 1.05 * lift;
-    P.spool.rotation.x = -T * (printing ? 0.5 : 0.03);
-    tmpA.set(P.head.position.x, P.gantry.position.y + 0.3, P.gantry.position.z + 0.4);
-    placeFil(P, P.spoolOut, tmpA);
-  } });
-  setPrinter(0);
-  onPrinter = function (i) { setPrinter(i); };
+    mesh(BoxG(4.0, 0.1, 0.1), frameMat, g, 0, 0.22, -1.25);
+
+    // A machined fixture with recessed seats, fasteners and three components.
+    mesh(rboxFlat(2.15, 1.4, 0.09, 0.05), fixtureMat, g, -0.08, 0.82, 0.2);
+    mesh(rboxFlat(1.85, 1.14, 0.035, 0.03), housingMat, g, -0.08, 0.89, 0.2);
+    [[-0.95, -0.35], [0.79, -0.35], [-0.95, 0.75], [0.79, 0.75]].forEach(function (point) {
+      cylY(0.045, 0.045, 0.025, M.alu, g, point[0], 0.88, point[1]);
+      cylY(0.015, 0.015, 0.005, M.ink, g, point[0], 0.895, point[1]);
+    });
+    var markers = [], ticks = [];
+    [-0.66, -0.08, 0.50].forEach(function (x, index) {
+      cylY(0.18, 0.18, 0.10, frameMat, g, x, 0.955, 0.18);
+      cylY(0.115, 0.115, 0.035, M.darkAlu, g, x, 1.02, 0.18);
+      cylY(0.055, 0.055, 0.008, M.ink, g, x, 1.041, 0.18);
+      var marker = new THREE.Mesh(new THREE.RingGeometry(0.235, 0.275, 64), projectionMat.clone());
+      marker.rotation.x = -Math.PI / 2; marker.position.set(x, 0.92, 0.18); g.add(marker);
+      marker.name = 'lightguide-marker-' + index;
+      markers.push(marker);
+      var tick = mesh(BoxG(0.44, 0.008, 0.075), projectionMat.clone(), g, x, 0.776, 1.0, 0, 0, 0, true);
+      tick.name = 'lightguide-step-' + index;
+      ticks.push(tick);
+    });
+    // Parts bins with a lip and individual metal pieces.
+    var binMarkers = [];
+    [-1.60, 1.48].forEach(function (x, index) {
+      mesh(rboxFlat(0.65, 0.85, 0.13, 0.04), plasticMat, g, x, 0.83, 0.35);
+      mesh(rboxFlat(0.53, 0.7, 0.012, 0.03), M.graphite, g, x, 0.90, 0.35);
+      [-0.14, 0.14].forEach(function (z) { cylY(0.075, 0.075, 0.05, M.alu, g, x, 0.93, 0.35 + z); });
+      // Project a rectangular outline onto the rim of each parts bin.
+      var outline = new THREE.Group();
+      outline.name = 'lightguide-bin-' + index;
+      var outlineMat = projectionMat.clone();
+      [-0.31, 0.31].forEach(function (dx) {
+        mesh(BoxG(0.035, 0.006, 0.82), outlineMat, outline, dx, 0, 0, 0, 0, 0, true);
+      });
+      [-0.40, 0.40].forEach(function (dz) {
+        mesh(BoxG(0.65, 0.006, 0.035), outlineMat, outline, 0, 0, dz, 0, 0, 0, true);
+      });
+      outline.position.set(x, 0.906, 0.35);
+      g.add(outline);
+      binMarkers.push({ group: outline, material: outlineMat });
+    });
+
+    // Overhead extruded frame, brackets, projector and a separate vision camera.
+    [-1.98, 1.98].forEach(function (x) {
+      mesh(BoxG(0.14, 2.25, 0.14), frameMat, g, x, 1.86, -1.22);
+      mesh(BoxG(0.28, 0.06, 0.28), housingMat, g, x, 0.80, -1.22);
+      cylY(0.035, 0.035, 0.025, M.alu, g, x, 0.84, -1.22);
+    });
+    mesh(BoxG(4.10, 0.15, 0.20), frameMat, g, 0, 2.96, -1.22);
+    mesh(BoxG(0.13, 0.11, 1.05), frameMat, g, -0.3, 2.91, -0.69);
+    mesh(rboxZ(0.82, 0.32, 0.57, 0.06), housingMat, g, -0.3, 2.75, -0.13);
+    mesh(rboxZ(0.66, 0.025, 0.46, 0.025), plasticMat, g, -0.3, 2.57, -0.13);
+    cylY(0.13, 0.13, 0.12, plasticMat, g, -0.3, 2.50, 0.02);
+    cylY(0.085, 0.085, 0.012, lensMat, g, -0.3, 2.435, 0.02);
+    mesh(rboxZ(0.28, 0.22, 0.30, 0.025), housingMat, g, 0.66, 2.73, -0.13);
+    cylY(0.09, 0.09, 0.12, plasticMat, g, 0.66, 2.57, -0.13);
+    cylY(0.055, 0.055, 0.012, lensMat, g, 0.66, 2.505, -0.13);
+    tube([V(-0.67, 2.82, -0.36), V(-0.8, 2.96, -0.9), V(-1.2, 2.96, -1.18), V(-1.94, 2.9, -1.22), V(-1.94, 1.1, -1.22)], 0.025, M.rubber, g);
+
+    // A broad projected arrow points from the instruction strip to the active
+    // fixture position; it stays on the work surface rather than floating.
+    var pointerShape = new THREE.Shape();
+    pointerShape.moveTo(-0.065, 0); pointerShape.lineTo(0.065, 0);
+    pointerShape.lineTo(0.065, 0.16); pointerShape.lineTo(0.15, 0.16);
+    pointerShape.lineTo(0, 0.31); pointerShape.lineTo(-0.15, 0.16);
+    pointerShape.lineTo(-0.065, 0.16); pointerShape.closePath();
+    var pointer = new THREE.Mesh(new THREE.ShapeGeometry(pointerShape), projectionMat.clone());
+    pointer.rotation.x = -Math.PI / 2;
+    pointer.position.set(-0.66, 0.935, 0.71);
+    pointer.name = 'lightguide-pointer';
+    pointer.renderOrder = 2;
+    g.add(pointer);
+
+    // Projector beam and projected step indicators. The sequence highlights one
+    // location, pauses for verification, then advances to the next location.
+    var beam = new THREE.Mesh(new THREE.ConeGeometry(1.10, 1.55, 32, 1, true), beamMat);
+    beam.position.set(-0.3, 1.64, 0.02); beam.renderOrder = 1; g.add(beam);
+    var checkMat = new THREE.MeshBasicMaterial({ color: 0xc1ffe3, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, toneMapped: false });
+    var check = new THREE.Group(); g.add(check);
+    var checkA = mesh(BoxG(0.14, 0.008, 0.035), checkMat, check, -0.07, 0, 0.015, 0, -Math.PI / 4, 0, true);
+    var checkB = mesh(BoxG(0.25, 0.008, 0.035), checkMat, check, 0.05, 0, -0.015, 0, Math.PI / 4, 0, true);
+    check.position.set(-0.66, 0.928, 0.54);
+    props.push({ g: g, update: function (T) {
+      // Alternate between picking from a side bin and guiding the fixture.
+      var duration = 1.0;
+      var sequence = [
+        { x: -1.60, bin: 0 },
+        { x: -0.66, marker: 0 },
+        { x: -0.08, marker: 1 },
+        { x: 1.48, bin: 1 },
+        { x: 0.50, marker: 2 }
+      ];
+      var step = sequence[Math.floor(T / duration) % sequence.length];
+      var progress = (T % duration) / duration;
+      markers.forEach(function (marker, index) {
+        var isActive = step.marker === index;
+        marker.material.opacity = isActive ? 0.9 + 0.08 * Math.sin(T * 4) : 0.20;
+        marker.scale.setScalar(isActive ? 1 + 0.025 * Math.sin(T * 4) : 1);
+      });
+      ticks.forEach(function (tick, index) { tick.material.opacity = index === step.marker ? 1 : 0.22; });
+      binMarkers.forEach(function (bin, index) {
+        bin.material.opacity = index === step.bin ? 0.95 : 0.16;
+      });
+      pointer.position.x = step.x;
+      pointer.material.opacity = progress > 0.68 ? 0.35 : 0.95;
+      check.position.x = step.x;
+      checkMat.opacity = progress > 0.68 ? 1 : 0;
+    } });
+  })();
 
   function showProp(n) {
     props.forEach(function (p, i) { p.g.visible = i === n; });
-    printers.forEach(function (p, k) { p.g.visible = n === 3 && k === printerIdx; });
   }
   onTab = showProp; showProp(0);
 
 
   return {
     stageX: STAGE_X,
-    setProp(index) { activeProp = Math.max(0, Math.min(3, index)); onTab(activeProp); },
+    setProp(index) { activeProp = Math.max(0, Math.min(props.length - 1, index)); onTab(activeProp); },
     update(time) { stepRobot(robot, part, time, PA, PB); props[activeProp].update(time); }
   };
 }

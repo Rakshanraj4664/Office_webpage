@@ -43,8 +43,7 @@ export default function ProcessTimeline({ onOpenArchModal }) {
               A clear path from idea to deployed system.
             </h2>
             <p className="mt-3.5 text-[15.5px] leading-relaxed text-ink-onDarkMuted">
-              We test core ideas early with working prototypes so final engineering and site installation stay smooth
-              and predictable.
+              We bring design, engineering, testing, and installation together for a smooth and predictable deployment.
             </p>
 
             {/* Live Progress Meter */}
