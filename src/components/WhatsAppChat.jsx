@@ -4,7 +4,7 @@ import { COMPANY_INFO } from '../data/protovoltData';
 export default function WhatsAppChat() {
   return (
     <a
-      href="/api/whatsapp"
+      href={COMPANY_INFO.whatsappHref}
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`Text us on WhatsApp at ${COMPANY_INFO.phoneDisplay} (opens in a new tab)`}

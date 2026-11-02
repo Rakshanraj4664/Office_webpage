@@ -5,6 +5,7 @@ export const COMPANY_INFO = {
   phoneDisplay: '+91 96265 28585',
   phoneRaw: '9626528585',
   phoneHref: 'tel:+919626528585',
+  whatsappHref: 'https://wa.me/919626528585',
   address: '2/52, Sudha Rice Mill, Nathampalayam, Semnianallur, Avinashi - 641654',
   gst: '33ABJFP3401A1ZY'
 };
