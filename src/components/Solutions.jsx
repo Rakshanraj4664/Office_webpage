@@ -5,7 +5,7 @@ import { SOLUTIONS_TABS } from '../data/protovoltData';
 
 const AUTO_INTERVAL_MS = 5000;
 
-export default function Solutions({ onSelectSolutionScopes }) {
+export default function Solutions({ onSelectSolutionScopes, onActiveChange, sceneReady }) {
   const [activeIdx, setActiveIdx] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
@@ -16,9 +16,12 @@ export default function Solutions({ onSelectSolutionScopes }) {
 
   activeIdxRef.current = activeIdx;
 
+  useEffect(() => { onActiveChange?.(activeIdx); }, [activeIdx, onActiveChange]);
+
   // Zero-rerender 60fps progress bar + 5-second idle auto-advance
   useEffect(() => {
     let rafId;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     const syncBars = (pct) => {
       barRefs.current.forEach((barEl, idx) => {
@@ -34,7 +37,7 @@ export default function Solutions({ onSelectSolutionScopes }) {
       const delta = now - lastTickRef.current;
       lastTickRef.current = now;
 
-      if (!isPaused) {
+      if (!isPaused && !reducedMotion.matches && !document.hidden) {
         elapsedRef.current += delta;
         if (elapsedRef.current >= AUTO_INTERVAL_MS) {
           elapsedRef.current = 0;
@@ -68,8 +71,9 @@ export default function Solutions({ onSelectSolutionScopes }) {
   };
 
   return (
-    <section id="solutions" className="bg-subtle/65 py-16 sm:py-20 lg:py-24">
+    <section id="solutions" className="bg-subtle/25 py-16 sm:py-20 lg:py-24">
       <div className="container-shell">
+        <div className={sceneReady ? "solutions-heading-layout" : ""}>
         <Reveal direction="up" className="max-w-2xl">
           <span className="eyebrow-pill">
             <span className="h-2 w-2 rounded-full bg-volt" />
@@ -79,6 +83,9 @@ export default function Solutions({ onSelectSolutionScopes }) {
             Custom systems built for daily industrial use.
           </h2>
         </Reveal>
+
+        {sceneReady && <div className="scene-stage-window" aria-hidden="true" />}
+        </div>
 
         <div
           onMouseEnter={() => setIsPaused(true)}
@@ -151,54 +158,9 @@ export default function Solutions({ onSelectSolutionScopes }) {
 
           {/* Active Solution Stage — Zero-Jump Crossfade + Subtle Scale/Glide */}
           <Reveal direction="up" delay={100} className="mt-6">
-            <div className="grid items-center gap-8 rounded-2xl border border-line-light bg-surface p-5 shadow-card sm:p-8 lg:grid-cols-[0.95fr_1.05fr]">
-              {/* Left: Stacked Crossfade + Depth-Settle Image Stage */}
-              <div className="overflow-hidden rounded-xl border border-line-light bg-canvas p-2.5">
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-obsidian">
-                  {SOLUTIONS_TABS.map((sol, idx) => {
-                    const isActive = idx === activeIdx;
-                    return (
-                      <img
-                        key={sol.key}
-                        src={sol.img}
-                        alt={sol.alt}
-                        aria-hidden={!isActive}
-                        className={`absolute inset-0 h-full w-full object-cover will-change-transform transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                          isActive
-                            ? 'z-10 scale-100 opacity-100'
-                            : 'z-0 scale-[1.05] opacity-0 pointer-events-none'
-                        }`}
-                      />
-                    );
-                  })}
-                </div>
-
-                {/* Smoothly Animated Image Caption Bar */}
-                <div className="grid [grid-template-areas:'caption'] px-2 pt-3 pb-1 text-[13px]">
-                  {SOLUTIONS_TABS.map((sol, idx) => {
-                    const isActive = idx === activeIdx;
-                    return (
-                      <div
-                        key={sol.key}
-                        aria-hidden={!isActive}
-                        className={`[grid-area:caption] flex items-center justify-between transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                          isActive
-                            ? 'translate-y-0 opacity-100'
-                            : 'translate-y-1.5 opacity-0 pointer-events-none'
-                        }`}
-                      >
-                        <span className="font-medium text-ink-secondary">{sol.caption}</span>
-                        <strong className="font-display text-xs font-bold text-volt">
-                          {sol.badge}
-                        </strong>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Right: Stacked Editorial Content Stage (Locks Height & Glides Smoothly) */}
-              <div className="grid [grid-template-areas:'panel'] items-center">
+            <div className="grid items-center gap-8 lg:grid-cols-2">
+              {/* The content occupies the former image column, leaving the animated scene visible on the right. */}
+              <div className="grid [grid-template-areas:'panel'] items-center rounded-2xl border border-line-light bg-surface/95 p-5 shadow-card sm:p-8">
                 {SOLUTIONS_TABS.map((sol, idx) => {
                   const isActive = idx === activeIdx;
                   return (

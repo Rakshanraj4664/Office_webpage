@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Navbar from './components/Navbar';
 import Careers from './components/Careers';
 import Hero from './components/Hero';
+import RobotScene from './components/RobotScene';
 import Capabilities from './components/Capabilities';
 import Solutions from './components/Solutions';
 import ProcessTimeline from './components/ProcessTimeline';
@@ -21,6 +22,8 @@ export default function App() {
 
 function Home() {
   const [selectedScopes, setSelectedScopes] = useState([]);
+  const [activeSolution, setActiveSolution] = useState(0);
+  const [sceneReady, setSceneReady] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [inquireVisible, setInquireVisible] = useState(false);
   const [archModalOpen, setArchModalOpen] = useState(false);
@@ -64,16 +67,19 @@ function Home() {
   };
 
   return (
-    <div id="top" className="min-h-screen flex flex-col">
+    <div id="top" className="site-background min-h-screen flex flex-col">
+      <RobotScene activeSolution={activeSolution} onReady={setSceneReady} />
       <Navbar scrollProgress={scrollProgress} />
 
       <main className="flex-1">
-        <Hero />
+        <Hero sceneReady={sceneReady} />
         <Capabilities
           selectedScopes={selectedScopes}
           onToggleScope={toggleScope}
         />
         <Solutions
+          sceneReady={sceneReady}
+          onActiveChange={setActiveSolution}
           onSelectSolutionScopes={(scopes) => setSelectedScopes(scopes)}
         />
         <ProcessTimeline onOpenArchModal={() => setArchModalOpen(true)} />
