@@ -1,7 +1,7 @@
 import React from 'react';
 import { COMPANY_INFO } from '../data/protovoltData';
 
-export default function Footer({ inquiryCount, onOpenInbox }) {
+export default function Footer() {
   return (
     <footer className="border-t border-line-light bg-surface pt-14 pb-8">
       <div className="container-shell">
@@ -92,16 +92,6 @@ export default function Footer({ inquiryCount, onOpenInbox }) {
           <span>
             &copy; {new Date().getFullYear()} {COMPANY_INFO.name} &middot; GST: {COMPANY_INFO.gst}. All rights reserved.
           </span>
-          <button
-            type="button"
-            onClick={onOpenInbox}
-            className="inline-flex items-center gap-2 rounded-full border border-line-light bg-canvas px-3.5 py-1.5 font-display text-xs font-semibold text-ink hover:border-volt"
-          >
-            <span>Inquiries</span>
-            <span className="rounded-full bg-volt px-2 py-0.5 text-[11px] font-bold text-white">
-              {inquiryCount}
-            </span>
-          </button>
         </div>
       </div>
     </footer>

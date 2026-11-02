@@ -1,79 +1,17 @@
 import { COMPANY_INFO } from '../data/protovoltData';
 
-const STORAGE_KEY = 'protovolt_inquiries_v2';
-const memoryFallback = [];
-
-function readLocal() {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    const parsed = JSON.parse(raw || '[]');
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function writeLocal(list) {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-  } catch {
-    // Safe fallback when storage is restricted
-  }
-}
-
-export async function fetchAllInquiries() {
-  try {
-    const res = await fetch('/api/inquiries');
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data.inquiries)) {
-        writeLocal(data.inquiries);
-        return data.inquiries;
-      }
-    }
-  } catch {
-    // Offline or static-host fallback
-  }
-  const local = readLocal();
-  const seen = new Set(local.map((x) => x.referenceId));
-  return [...local, ...memoryFallback.filter((m) => !seen.has(m.referenceId))];
-}
-
 export async function submitInquiryRecord(payload) {
+  let response;
   try {
-    const res = await fetch('/api/inquiries', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+    response = await fetch('/api/inquiries', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
     });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.inquiry) {
-        if (payload.booking) data.inquiry.booking = payload.booking;
-        return data.inquiry;
-      }
-    }
   } catch {
-    // Offline fallback below
+    throw new Error('Could not connect. Please try again or email the office directly.');
   }
-
-  const year = new Date().getFullYear();
-  const code = Math.floor(1000 + Math.random() * 9000);
-  const prefix = payload.inquiryType === 'Architecture Review' ? 'PV-ARCH' : 'PV-RFQ';
-  const record = {
-    referenceId: `${prefix}-${year}-${code}`,
-    ...payload,
-    company: payload.company || 'Independent / Unspecified',
-    createdAt: new Date().toISOString()
-  };
-
-  memoryFallback.unshift(record);
-  const list = readLocal();
-  if (!list.some((x) => x.referenceId === record.referenceId)) {
-    list.unshift(record);
-    writeLocal(list);
-  }
-  return record;
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || !result.inquiry) throw new Error(result.error || 'Could not send your request. Please try again or email the office directly.');
+  return result.inquiry;
 }
 
 export function downloadTextReceipt(record) {
@@ -185,7 +123,7 @@ export function downloadBookingIcs({ record, dateObj, bookingMeta, topic }) {
         : bookingMeta.format
     )}`,
     `DESCRIPTION:${escapeIcs(`Booking ID: ${record.referenceId}\nHost: ${COMPANY_INFO.name} (${COMPANY_INFO.email} / ${COMPANY_INFO.phoneDisplay})\nAttendee: ${record.name} (${record.email})\nTopic: ${topic}`)}`,
-    'STATUS:CONFIRMED',
+    'STATUS:TENTATIVE',
     'END:VEVENT',
     'END:VCALENDAR'
   ].join('\r\n');

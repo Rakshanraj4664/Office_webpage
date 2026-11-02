@@ -3,3 +3,7 @@ dist
 .DS_Store
 .env
 .env.*
+
+# Runtime inquiry data must not be committed
+server/data/
+!.env.example

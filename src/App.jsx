@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from './components/Navbar';
 import Careers from './components/Careers';
 import Hero from './components/Hero';
@@ -11,9 +11,7 @@ import InquireSection from './components/InquireSection';
 import FaqSection from './components/FaqSection';
 import Footer from './components/Footer';
 import ArchReviewModal from './components/ArchReviewModal';
-import InquiriesDrawer from './components/InquiriesDrawer';
 import FloatingWidgets from './components/FloatingWidgets';
-import { fetchAllInquiries } from './utils/inquiryStorage';
 
 export default function App() {
   if (window.location.pathname.replace(/\/$/, '') === '/careers') return <Careers />;
@@ -27,18 +25,6 @@ function Home() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [inquireVisible, setInquireVisible] = useState(false);
   const [archModalOpen, setArchModalOpen] = useState(false);
-  const [inboxOpen, setInboxOpen] = useState(false);
-  const [inquiries, setInquiries] = useState([]);
-
-  const refreshInquiries = useCallback(async () => {
-    const list = await fetchAllInquiries();
-    setInquiries(list);
-  }, []);
-
-  useEffect(() => {
-    refreshInquiries();
-  }, [refreshInquiries]);
-
   useEffect(() => {
     const onScroll = () => {
       const docH = document.documentElement.scrollHeight - window.innerHeight;
@@ -88,18 +74,11 @@ function Home() {
           selectedScopes={selectedScopes}
           onToggleScope={toggleScope}
           onClearScopes={() => setSelectedScopes([])}
-          onInquirySaved={refreshInquiries}
         />
         <FaqSection />
       </main>
 
-      <Footer
-        inquiryCount={inquiries.length}
-        onOpenInbox={() => {
-          refreshInquiries();
-          setInboxOpen(true);
-        }}
-      />
+      <Footer />
 
       <FloatingWidgets
         selectedCount={selectedScopes.length}
@@ -111,14 +90,8 @@ function Home() {
         open={archModalOpen}
         onClose={() => setArchModalOpen(false)}
         selectedScopes={selectedScopes}
-        onBookingSaved={refreshInquiries}
       />
 
-      <InquiriesDrawer
-        open={inboxOpen}
-        onClose={() => setInboxOpen(false)}
-        inquiries={inquiries}
-      />
     </div>
   );
 }
