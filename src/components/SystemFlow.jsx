@@ -218,7 +218,6 @@ export default function SystemFlow() {
           <span className="text-volt mx-2">&bull;</span> AI &amp; ML{' '}
           <span className="text-volt mx-2">&bull;</span> EMBEDDED SYSTEMS{' '}
           <span className="text-volt mx-2">&bull;</span> INDUSTRIAL IOT{' '}
-          <span className="text-volt mx-2">&bull;</span> RAPID PROTOTYPING{' '}
           <span className="text-volt mx-2">&bull;</span> PRODUCT DEVELOPMENT
         </div>
       </div>

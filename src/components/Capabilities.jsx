@@ -1,11 +1,10 @@
 import React from 'react';
 import {
   Bot,
-  Box,
   Check,
   Cpu,
   Eye,
-  Layers,
+  Projector,
   Network,
   Sparkles,
   Workflow,
@@ -20,9 +19,7 @@ const ICON_MAP = {
   ai: Sparkles,
   vision: Eye,
   iiot: Network,
-  embedded: Cpu,
-  prototyping: Layers,
-  product: Box
+  lightguide: Projector
 };
 
 export default function Capabilities({ selectedScopes, onToggleScope }) {

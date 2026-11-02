@@ -7,7 +7,6 @@ import { downloadTextReceipt, submitInquiryRecord } from '../utils/inquiryStorag
 
 const PROJECT_STAGES = [
   { value: 'Early Idea / Concept', label: 'Early Idea / Concept' },
-  { value: 'Rapid Prototype', label: 'Rapid Prototype' },
   { value: 'Full System / Product Build', label: 'Full System / Product' },
   { value: 'Factory Upgrade / Integration', label: 'Factory Upgrade' }
 ];
@@ -412,10 +411,10 @@ export default function InquireSection({
               <ul className="mt-4 space-y-3.5 text-[14px]">
                 <li className="border-b border-line-light pb-3">
                   <strong className="block font-display text-[15px] text-ink">
-                    Rapid Prototype Sprint
+                    LightGuide Augmented Intelligence
                   </strong>
                   <span className="text-ink-secondary">
-                    Test your idea quickly with a working benchtop prototype.
+                    Project visual work instructions and support operators with step-by-step guidance.
                   </span>
                 </li>
                 <li className="border-b border-line-light pb-3">

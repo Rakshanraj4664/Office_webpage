@@ -16,7 +16,7 @@ export const MARQUEE_ITEMS = [
   'AI & Machine Learning',
   'Machine Vision',
   'Industrial IoT',
-  'Rapid Prototyping'
+  'LightGuide Augmented Intelligence'
 ];
 
 export const SYSTEM_FLOW_STEPS = [
@@ -119,27 +119,27 @@ export const CORE_CAPABILITIES = [
   {
     num: '05',
     id: 'IoT & IIoT',
-    title: 'Industrial IoT (IIoT)',
+    title: 'Industrial IoT & Embedded Systems',
     icon: 'iiot',
     summary:
-      'Connected sensors, machine gateways, and live dashboards to track output, uptime, and energy across plants.',
+      'Connected sensors, embedded controllers, machine gateways, and dashboards for industrial systems.',
     points: [
       'Machine Data Gateways',
       'Cloud & Local Dashboards',
+      'Embedded Controllers & Firmware',
       'Energy & Uptime Tracking'
     ]
   },
   {
     num: '06',
-    id: 'Rapid Prototyping',
-    title: 'Rapid Prototyping',
-    icon: 'prototyping',
-    summary:
-      'From working prototypes to production-ready products, including custom electronics and embedded systems.',
+    id: 'LightGuide Augmented Intelligence',
+    title: 'LightGuide Augmented Intelligence',
+    icon: 'lightguide',
+    summary: 'Projected visual guidance helps operators follow assembly and inspection steps directly at the work surface.',
     points: [
-      'Working Proof-of-Concepts & Design Validation',
-      'Embedded Systems, PCBs & Firmware',
-      'Product Design & Manufacturing'
+      'Projected Step-by-Step Guidance',
+      'Vision-Assisted Process Verification',
+      'Operator Training & Workflow Support'
     ]
   }
 ];
@@ -221,33 +221,29 @@ export const SOLUTIONS_TABS = [
       'Modbus, OPC-UA, CAN & wireless connectivity',
       'Live uptime, output & energy tracking'
     ],
-    scopes: ['Rapid Prototyping', 'IoT & IIoT']
+    scopes: ['IoT & IIoT']
   },
   {
-    key: 'prototyping',
+    key: 'lightguide',
     idx: '04',
-    tabName: 'Prototyping & Products',
-    img: '/assets/prototyping-lab.jpg',
-    alt: 'Rapid prototyping and automation workbench',
-    caption: 'Rapid Prototyping & Product Build',
-    badge: 'Prototyping & R&D',
-    eyebrow: 'Concept to Product',
-    heading: 'Rapid Prototyping & Product Development',
-    copy: 'Turn new ideas into working hardware quickly using CAD design, 3D printing, machined parts, custom electronics, and pilot testing.',
-    loopLabel: 'Build · Test · Refine',
+    tabName: 'LightGuide & Operator Guidance',
+    eyebrow: 'Augmented Intelligence',
+    heading: 'LightGuide Augmented Intelligence',
+    copy: 'Projected visual instructions guide operators through manual assembly and inspection tasks at the workstation, with vision and sensors supporting process checks.',
+    loopLabel: 'Guide · Check · Continue',
     steps: [
-      { num: '01 · Design', title: '3D CAD & Circuit Design' },
-      { num: '02 · Build', title: '3D Printing, CNC & PCB Build' },
-      { num: '03 · Test', title: 'Lab Testing & Refinement' },
-      { num: '04 · Scale', title: 'Production-Ready Handover' }
+      { num: '01 · Guide', title: 'Project the Next Work Instruction' },
+      { num: '02 · Assemble', title: 'Identify Parts and Work Locations' },
+      { num: '03 · Verify', title: 'Check the Step with Vision or Sensors' },
+      { num: '04 · Continue', title: 'Advance Through the Workflow' }
     ],
     checks: [
-      'Fast working prototypes to test ideas early',
-      '3D printing & CNC parts integrated with electronics',
-      'Durable industrial enclosure engineering',
-      'Complete manufacturing files & pilot test rigs'
+      'Visual instructions at the work surface',
+      'Step-by-step support for manual workflows',
+      'Vision and sensor-assisted checks',
+      'Support for assembly, inspection and training'
     ],
-    scopes: ['Rapid Prototyping']
+    scopes: ['LightGuide Augmented Intelligence', 'Machine Vision']
   }
 ];
 
@@ -262,9 +258,9 @@ export const PROCESS_STAGES = [
   {
     num: '02',
     phase: 'Step 02',
-    title: 'Rapid Prototyping',
-    desc: 'We build fast working prototypes using CAD, 3D printing, machined parts, and test electronics to prove performance early.',
-    output: 'Working Prototype & Test Results'
+    title: 'System Design',
+    desc: 'We develop the mechanical, electrical, and software design around your project requirements.',
+    output: 'Detailed Engineering Design'
   },
   {
     num: '03',
@@ -325,14 +321,14 @@ export const INDUSTRIES = [
   {
     idx: '06',
     title: 'R&D & Product Teams',
-    desc: 'Rapid working prototypes, custom sensor boards, and turning new ideas into commercial products.'
+    desc: 'Custom sensor boards, connected hardware, and engineering support for product teams.'
   }
 ];
 
 export const FAQ_ITEMS = [
   {
     q: 'Can we start with just an early idea or factory problem?',
-    a: 'Yes. Many projects start with an operational challenge or a rough product idea. We help define the technical plan and build a working prototype before full-scale production.'
+    a: 'Yes. Many projects start with an operational challenge or a rough product idea. We help define the technical plan and requirements for your project.'
   },
   {
     q: 'Can your systems connect with our existing machines and PLCs?',
@@ -348,6 +344,6 @@ export const FAQ_ITEMS = [
   },
   {
     q: 'Do you build both custom factory machines and commercial products?',
-    a: 'Yes. We build custom automation and inspection machines for factories, and we also develop commercial hardware products from initial prototype to pilot manufacturing.'
+    a: 'Yes. We build custom automation and inspection machines for factories, and we also develop commercial hardware products from system design through engineering and production.'
   }
 ];

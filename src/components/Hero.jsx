@@ -26,7 +26,7 @@ export default function Hero({ sceneReady }) {
             <p className="mt-5 max-w-2xl text-[16.5px] leading-[1.68] text-ink-secondary sm:text-[17.5px]">
               <strong className="font-semibold text-ink">{COMPANY_INFO.name}</strong> designs and builds custom automation systems,
               robotic cells, vision inspection stations, connected IIoT devices, embedded electronics, and AI-powered
-              products—taking your project from early concept and rapid prototype to reliable factory deployment.
+              products—taking your project from early concept to reliable factory deployment.
             </p>
 
             <div className="mt-7 flex flex-wrap items-center gap-3.5">
@@ -51,10 +51,10 @@ export default function Hero({ sceneReady }) {
               </div>
               <div>
                 <strong className="block font-display text-[17px] font-bold text-ink">
-                  Fast Prototypes
+                  LightGuide Augmented Intelligence
                 </strong>
                 <span className="mt-0.5 block text-[13.5px] leading-snug text-ink-secondary">
-                  Working prototypes to prove your idea early
+                  Projected instructions for manual work
                 </span>
               </div>
               <div>

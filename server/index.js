@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { getSmtpConfig, sendOfficeNotificationEmail, sendCareerApplication } from './mailer.js';
 import Busboy from 'busboy';
+import { reviewConfigured, createReview, deleteReview, getReview, claimReview, setReviewStatus, createGoogleEvent } from './reviews.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -76,6 +77,50 @@ const server = http.createServer((req, res) => {
     }
   }
 
+  // Email security scanners may follow links, so GET never changes a decision.
+  if (pathname === '/api/review-decision' && (req.method === 'GET' || req.method === 'POST')) {
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'");
+    res.setHeader('X-Frame-Options', 'DENY');
+    const page = (status, content) => {
+      res.writeHead(status, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(`<!doctype html><html lang="en"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Review decision</title><body style="font-family:system-ui;background:#f5f4ef;color:#111317;padding:24px"><main style="max-width:560px;margin:10vh auto;padding:28px;background:white;border-radius:12px"><h1>Architecture review</h1>${content}</main></body></html>`);
+    };
+    if (req.method === 'GET') {
+      const token = urlObj.searchParams.get('token') || '';
+      const row = getReview(token);
+      if (!row || row.expires <= Date.now()) return page(404, '<p>This link is invalid or has expired. Please contact the office.</p>');
+      if (!['pending', 'retry'].includes(row.status)) return page(200, `<p>This request is ${row.status === 'accepting' ? 'being processed; please contact the office if it remains in this state' : row.status}.</p>`);
+      // Token is strictly validated by getReview and is safe in an HTML attribute.
+      return page(200, `<p>Choose a decision. Accepting creates a Google Calendar event with a Meet link and invites the applicant. Declining does not notify the applicant.</p><form method="post" action="/api/review-decision"><input type="hidden" name="token" value="${token}"><button name="decision" value="accept" style="padding:12px;background:#df4b18;color:white;border:0;border-radius:6px;margin-right:10px">Accept and invite</button>${row.status === 'pending' ? '<button name="decision" value="decline" style="padding:12px;border:1px solid #999;border-radius:6px">Decline</button>' : '<p>A previous acceptance attempt may have created an event. Retry acceptance or check Google Calendar; declining is disabled.</p>'}</form>`);
+    }
+    if (req.headers['sec-fetch-site'] === 'cross-site' || (req.headers.origin && req.headers.origin !== process.env.SITE_ORIGIN)) return page(403, '<p>Request not allowed.</p>');
+    if (rateLimited(req)) return page(429, '<p>Too many requests. Please try again later.</p>');
+    if (!/^application\/x-www-form-urlencoded(?:\s*;|$)/i.test(req.headers['content-type'] || '')) return page(415, '<p>Invalid request.</p>');
+    let body = '', size = 0;
+    req.on('data', chunk => { size += chunk.length; if (size <= 4096) body += chunk; });
+    req.on('end', async () => {
+      if (size > 4096) return page(413, '<p>Request too large.</p>');
+      const params = new URLSearchParams(body), token = params.get('token') || '', decision = params.get('decision');
+      const row = getReview(token);
+      if (!row || row.expires <= Date.now()) return page(404, '<p>This link is invalid or has expired.</p>');
+      if (!['accept', 'decline'].includes(decision)) return page(400, '<p>Invalid decision.</p>');
+      if (!claimReview(token, decision === 'accept' ? 'accepting' : 'declined')) return page(409, '<p>This request has already been decided or is being processed.</p>');
+      if (decision === 'decline') return page(200, '<p>Request declined. No email has been sent to the applicant.</p>');
+      try {
+        await createGoogleEvent(row);
+        setReviewStatus(token, 'accepting', 'accepted');
+        return page(200, '<p>Accepted. Google Calendar created the event and was asked to invite the applicant with the Meet link.</p>');
+      } catch (error) {
+        console.error('[Review] Calendar decision failed:', error.message);
+        setReviewStatus(token, 'accepting', 'retry');
+        return page(503, '<p>We could not confirm the meeting. Please retry this link or contact the office administrator. No second event will be created by a retry.</p>');
+      }
+    });
+    return;
+  }
+
   // A server-side redirect keeps the office WhatsApp destination in one place.
   if (pathname === '/api/whatsapp' && req.method === 'GET') {
     res.writeHead(302, { Location: 'https://wa.me/919626528585', 'Cache-Control': 'no-store' });
@@ -88,7 +133,8 @@ const server = http.createServer((req, res) => {
       status: 'ok',
       service: 'Protovolt.io React API',
       officeEmail: cfg.officeEmail,
-      smtpConfigured: cfg.isConfigured
+      smtpConfigured: cfg.isConfigured,
+      reviewCalendarConfigured: reviewConfigured()
     });
   }
 
@@ -175,12 +221,16 @@ const server = http.createServer((req, res) => {
           const b = data.booking;
           const date = typeof b?.dateIso === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(b.dateIso) ? new Date(b.dateIso + 'T00:00:00Z') : null;
           const validDate = date && !Number.isNaN(date.valueOf()) && date.toISOString().slice(0, 10) === b.dateIso;
-          if (!validDate || ![30, 45].includes(b.durationMin) || ![[10, 0], [11, 30], [14, 30], [16, 30], [18, 0]].some(([h, m]) => b.hourIst === h && b.minIst === m) ||
+          if (!validDate || ![30, 45].includes(b.durationMin) || !Number.isInteger(b.hourIst) || b.hourIst < 0 || b.hourIst > 23 || ![0, 30].includes(b.minIst) || (validDate && date.valueOf() + (b.hourIst * 60 + b.minIst - 330) * 60_000 <= Date.now()) ||
             !['Video Call (Meet / Teams)', 'Phone / WhatsApp Call', 'On-Site Visit'].includes(b.format) ||
             !['Concept & Feasibility Review', 'System & Hardware Review', 'Factory Upgrade Review'].includes(b.track) ||
             typeof b.dateLabel !== 'string' || b.dateLabel.length > 100 || typeof b.timeSlot !== 'string' || b.timeSlot.length > 80) {
             return sendJson(res, 400, { error: 'Invalid review request details.' });
           }
+          b.dateLabel = new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }).format(date);
+          const hour12 = b.hourIst % 12 || 12;
+          b.timeSlot = `${String(hour12).padStart(2, '0')}:${String(b.minIst).padStart(2, '0')} ${b.hourIst < 12 ? 'AM' : 'PM'} IST`;
+          data.timeline = `${b.dateLabel} · ${b.timeSlot}`;
         }
         const prefix = inquiryType === 'Architecture Review' ? 'PV-ARCH' : 'PV-RFQ';
         const year = new Date().getFullYear();
@@ -204,8 +254,19 @@ const server = http.createServer((req, res) => {
           createdAt: new Date().toISOString()
         };
 
+        let review;
+        if (inquiryType === 'Architecture Review') {
+          if (!reviewConfigured()) return sendJson(res, 503, { error: 'Review booking is not configured yet. Please email the office directly.' });
+          review = createReview(record);
+          // Never return the office-only decision link to the applicant.
+          record.decisionUrl = review.url.replace('/review-decision?', '/api/review-decision?');
+        }
         const mailResult = await sendOfficeNotificationEmail(record);
-        if (!mailResult.sent) return sendJson(res, 503, { error: 'We could not send your request. Please try again later or email the office directly.' });
+        if (!mailResult.sent) {
+          if (review) deleteReview(review.token);
+          return sendJson(res, 503, { error: 'We could not send your request. Please try again later or email the office directly.' });
+        }
+        delete record.decisionUrl;
         return sendJson(res, 201, { status: 'sent', inquiry: record });
       } catch {
         return sendJson(res, 400, { error: 'Invalid request payload.' });
