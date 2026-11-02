@@ -89,7 +89,7 @@ function buildBookingIcsAttachment(record) {
     `DESCRIPTION:${escapeIcs(
       `Booking ID: ${record.referenceId}\nClient: ${record.name} (${record.email}${record.phone ? ', ' + record.phone : ''})\nCompany: ${record.company}\nSession: ${durationMin} Min · ${b.track}\nDetails: ${record.overview}`
     )}`,
-    'STATUS:CONFIRMED',
+    'STATUS:TENTATIVE',
     'END:VEVENT',
     'END:VCALENDAR'
   ].join('\r\n');
@@ -146,7 +146,7 @@ export function buildOfficeEmailContent(record) {
     '',
     ...(isBooking && b
       ? [
-          'SCHEDULED SESSION',
+          'REQUESTED SESSION',
           '------------------------------------------------------------',
           `Session Type   : ${b.track} (${b.durationMin} Min)`,
           `Date           : ${b.dateLabel}`,
@@ -175,7 +175,7 @@ export function buildOfficeEmailContent(record) {
       ? `
       <div style="margin:20px 0;padding:16px 18px;background:#FFF5F0;border:1px solid #F6C5B2;border-left:4px solid #DF4B18;border-radius:8px;">
         <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#DF4B18;margin-bottom:6px;">
-          Scheduled Architecture Review
+          Requested Architecture Review
         </div>
         <div style="font-size:16px;font-weight:700;color:#111317;margin-bottom:4px;">
           ${escapeHtml(b.dateLabel)} &middot; ${escapeHtml(b.timeSlot)}
@@ -198,7 +198,7 @@ export function buildOfficeEmailContent(record) {
     <!-- Top Header -->
     <div style="background:#101216;padding:22px 26px;border-bottom:3px solid #DF4B18;">
       <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#FF6B35;">
-        ${isBooking ? 'New Architecture Review Booking' : 'New Project Consultation Brief'}
+        ${isBooking ? 'New Architecture Review Request' : 'New Project Consultation Brief'}
       </div>
       <div style="font-size:21px;font-weight:700;color:#FFFFFF;margin-top:4px;">
         ${escapeHtml(COMPANY.name)} &mdash; Lead Notification
@@ -328,6 +328,8 @@ export async function sendOfficeNotificationEmail(record) {
       host: cfg.host,
       port: cfg.port,
       secure: cfg.secure,
+      connectionTimeout: 15000, greetingTimeout: 15000, socketTimeout: 30000,
+      requireTLS: !cfg.secure && process.env.NODE_ENV !== 'test',
       auth: {
         user: cfg.user,
         pass: cfg.pass
@@ -337,7 +339,7 @@ export async function sendOfficeNotificationEmail(record) {
     const info = await transporter.sendMail({
       from: `"${COMPANY.name} Website" <${cfg.user}>`,
       to: cfg.officeEmail,
-      replyTo: `"${record.name}" <${record.email}>`,
+      replyTo: { name: record.name, address: record.email },
       subject,
       text,
       html,
@@ -381,6 +383,8 @@ export async function sendCareerApplication(fields, resume) {
   ];
   const transporter = nodemailer.createTransport({
     host: cfg.host, port: cfg.port, secure: cfg.secure,
+    connectionTimeout: 15000, greetingTimeout: 15000, socketTimeout: 30000,
+      requireTLS: !cfg.secure && process.env.NODE_ENV !== 'test',
     auth: { user: cfg.user, pass: cfg.pass }
   });
   await transporter.sendMail({

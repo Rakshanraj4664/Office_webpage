@@ -1,82 +1,28 @@
-# Protovolt.io — React + Vite + Tailwind CSS + Google Workspace Email Backend
+# Protovolt.io
 
-A modular, component-driven **React 18 + Vite + Tailwind CSS** website and **Node.js + Nodemailer** backend for **Protovolt.io**, pre-configured to send instant lead notifications for both **Project Consultation Briefs** and **Book Architecture Review** sessions directly to **`tech@protovolt.io`**.
+React/Vite website with a Node.js email API for project inquiries, architecture review requests and career applications.
 
----
+## Development
 
-## Project Architecture
+Requires Node.js 20 or later. Run `npm ci`, then `npm run dev` and open http://localhost:3000. The frontend proxies `/api` to the Node server. Run `npm test` for API integration tests with a local mock SMTP server and `npm run build` to check the production build.
 
-```text
-protovolt/
-├── .env.example                # Google Workspace SMTP setup template for tech@protovolt.io
-├── index.html                  # Vite HTML entry + Google Fonts (Archivo & IBM Plex Sans)
-├── tailwind.config.js          # Protovolt.io theme tokens (colors, fonts, shadows, animations)
-├── vite.config.js              # Vite config + /api proxy to Node backend
-├── package.json                # Scripts & dependencies
-├── public/
-│   └── assets/                 # Official Protovolt.io logo, favicon & studio photography
-├── server/
-│   ├── index.js                # /api/inquiries REST backend & production static host
-│   ├── mailer.js               # Google Workspace SMTP mailer + HTML template + .ics invite
-│   ├── testEmail.js            # One-command SMTP verification script (`npm run test:email`)
-│   └── data/inquiries.json     # Persistent JSON lead & booking storage
-└── src/
-    ├── main.jsx                # React root mount
-    ├── App.jsx                 # Page composition & shared scope/modal state
-    ├── index.css               # Tailwind layers & reusable button/input classes
-    ├── data/protovoltData.js   # Centralized copy, office details & section data
-    ├── utils/inquiryStorage.js # API client + offline fallback + .txt / .csv / .ics exporters
-    └── components/             # Modular React + Tailwind UI components
-```
+## Email configuration
 
----
+Copy `.env.example` to `.env` and configure the office SMTP account on the server. Never commit or share credentials. For Google Workspace, use an app password for an account with two-step verification. Set `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` and `OFFICE_EMAIL`; the office address defaults to `tech@protovolt.io`. Port 465 normally uses `SMTP_SECURE=true`; port 587 normally uses `SMTP_SECURE=false` with required STARTTLS. Only set `SITE_ORIGIN` to the exact public HTTPS origin when deploying (or to your local frontend origin for local testing).
 
-## 1. Local Setup & Live Development
+Run `npm run test:email` to send a real test message **after** configuring SMTP. Confirm it arrives with its calendar attachment. The health endpoint only reports whether a password is configured; it does not verify SMTP connectivity or delivery.
 
-```bash
-cd protovolt
-npm install
-npm run dev
-```
+## Submission and privacy behavior
 
-- **Frontend:** `http://localhost:3000`
-- **Backend API:** `http://localhost:3001` (automatically proxied via `/api`)
+* Inquiries, review requests and applications are sent to the configured office mailbox. The API reports success only when the SMTP server accepts the message. SMTP acceptance is not a guarantee of final delivery: monitor the mailbox, bounces and provider logs.
+* For privacy, there is no public inquiries inbox or server-side inquiry database. Submissions are not stored for retry; if mail delivery fails, the visitor sees an error and must retry or email the office. Old `server/data/inquiries.json` files are no longer used; securely remove or migrate any existing data as appropriate.
+* Career resumes are limited to 5 MB and PDF, DOC or DOCX files with matching basic file signatures. Signature checks are not malware scanning; use mailbox attachment scanning and do not open untrusted files without appropriate protection.
+* Review slots are **requests**, not confirmed bookings. The office must confirm availability. Calendar files are marked tentative; there is no calendar availability check or double-booking protection.
 
----
+## Deployment checklist
 
-## 2. Activating Live Email Delivery to `tech@protovolt.io` (Google Workspace)
-
-1. Copy `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-2. Generate a **16-character Google App Password** for `tech@protovolt.io`:
-   - Sign in at `https://myaccount.google.com` as **`tech@protovolt.io`**
-   - Open **Security** &rarr; ensure **2-Step Verification** is enabled
-   - Search **App passwords** &rarr; create one named **`Protovolt Website`**
-3. Paste the 16-character password into `.env`:
-   ```env
-   OFFICE_EMAIL=tech@protovolt.io
-   SMTP_HOST=smtp.gmail.com
-   SMTP_PORT=465
-   SMTP_SECURE=true
-   SMTP_USER=tech@protovolt.io
-   SMTP_PASS=abcd efgh ijkl mnop
-   ```
-4. Test email delivery immediately with one command:
-   ```bash
-   npm run test:email
-   ```
-
-### What Arrives in `tech@protovolt.io`
-- **Project Consultation Brief (`PV-RFQ-YYYY-XXXX`):** Formatted HTML + plain-text email with client name, clickable email, company, phone/WhatsApp button, selected Core Areas, project stage, timeline, NDA status, full project details, and `Reply-To` set directly to the client's email.
-- **Book Architecture Review (`PV-ARCH-YYYY-XXXX`):** All client and topic details, highlighted session date/time/format banner, `Reply-To` set to the client, **plus an attached `.ics` calendar invite** so Google Calendar / Gmail displays an instant calendar card.
-
----
-
-## 3. Production Deployment
-
-```bash
-npm run build
-npm start
-```
+1. Run `npm ci`, `npm test`, `npm run build`, then `npm start`. Serve the Node server behind a properly configured HTTPS reverse proxy. Set `NODE_ENV=production`, `PORT`, and `SITE_ORIGIN` in the hosting environment.
+2. Provision SMTP credentials and verify a real inquiry, review request and career application from the deployed site. Configure SPF/DKIM/DMARC as appropriate for your mail provider and monitor delivery and bounces. Do not place credentials in the repository or browser code.
+3. Configure request-size limits, rate limiting, bot/spam protection, logging, monitoring, alerting and backups at the hosting edge. The built-in per-connection IP rate limit is process-local and behind a proxy may treat all clients as one; it is not a distributed abuse-control solution. Restrict direct access to the Node service.
+4. Review the privacy notice, data retention and access controls for the office mailbox and ensure your hosting supports the required Node version. File-signature validation is not antivirus scanning.
+5. Test on the real domain and verify browser security headers, HTTPS and submission error handling. This project does not include authenticated administration, a durable message queue, automatic retry or a booking system.

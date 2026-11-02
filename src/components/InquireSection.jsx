@@ -14,8 +14,7 @@ const PROJECT_STAGES = [
 export default function InquireSection({
   selectedScopes,
   onToggleScope,
-  onClearScopes,
-  onInquirySaved
+  onClearScopes
 }) {
   const [stage, setStage] = useState('Early Idea / Concept');
   const [name, setName] = useState('');
@@ -43,6 +42,7 @@ export default function InquireSection({
     }
 
     setSubmitting(true);
+    try {
     const record = await submitInquiryRecord({
       inquiryType: 'RFQ Consultation',
       name: name.trim(),
@@ -55,9 +55,12 @@ export default function InquireSection({
       ndaRequested: nda,
       overview: overview.trim()
     });
-    setSubmitting(false);
     setReceipt(record);
-    onInquirySaved();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleReset = () => {

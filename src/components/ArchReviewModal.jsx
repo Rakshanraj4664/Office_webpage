@@ -68,8 +68,7 @@ function computeBusinessDates() {
 export default function ArchReviewModal({
   open,
   onClose,
-  selectedScopes,
-  onBookingSaved
+  selectedScopes
 }) {
   const dates = useMemo(() => computeBusinessDates(), []);
   const [trackIdx, setTrackIdx] = useState(1);
@@ -132,6 +131,7 @@ export default function ArchReviewModal({
     };
 
     setSubmitting(true);
+    try {
     const record = await submitInquiryRecord({
       inquiryType: 'Architecture Review',
       name: name.trim(),
@@ -145,15 +145,17 @@ export default function ArchReviewModal({
       booking: bookingMeta,
       overview: `[Architecture Review — ${selectedDate.fullLabel} at ${selectedSlot.slot} via ${format}] ${topic.trim()}`
     });
-    setSubmitting(false);
-
     setBooked({
       record,
       dateObj: selectedDate,
       bookingMeta,
       topic: topic.trim()
     });
-    onBookingSaved();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -408,7 +410,7 @@ export default function ArchReviewModal({
                   disabled={submitting}
                   className="btn-volt px-6 py-3 text-[14.5px]"
                 >
-                  <span>{submitting ? 'Booking...' : 'Confirm Booking'}</span>
+                  <span>{submitting ? 'Sending...' : 'Request Review'}</span>
                   <ArrowRight className="h-4 w-4" />
                 </button>
                 <div className="text-right text-xs">
@@ -423,18 +425,18 @@ export default function ArchReviewModal({
             <div aria-live="polite">
               <div className="inline-flex items-center gap-1.5 rounded-full bg-emeraldBrand/10 px-3 py-1 font-display text-xs font-bold text-emeraldBrand">
                 <Check className="h-3.5 w-3.5" />
-                Review Scheduled
+                Review Requested
               </div>
               <h3 className="mt-3 font-display text-[22px] font-bold text-ink">
-                Your architecture review is booked.
+                Your request has been sent. Our team will confirm availability with you.
               </h3>
               <p className="mt-1 text-[14.5px] text-ink-secondary">
-                We have reserved your slot and will send the meeting link to your email.
+                The date and time are tentative until our team confirms them.
               </p>
 
               <div className="mt-5 grid gap-3 rounded-xl border border-line-light bg-canvas/70 p-4 sm:grid-cols-2">
                 <div>
-                  <small className="block text-xs text-ink-muted">Booking ID</small>
+                  <small className="block text-xs text-ink-muted">Request ID</small>
                   <strong className="font-display text-sm text-ink">
                     {booked.record.referenceId}
                   </strong>
