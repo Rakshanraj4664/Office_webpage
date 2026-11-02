@@ -236,6 +236,11 @@ export function createReferenceScene(scene) {
     cylY(0.3, 0.3, 0.9, M.navy, car, 0, 2.35, 0);
     cylY(0.34, 0.34, 0.08, M.alu, car, 0, 2.85, 0);
     cylY(0.32, 0.32, 0.06, M.graphite, car, 0, 1.9, 0);
+    cylY(0.27, 0.27, 0.26, M.graphite, car, 0, 1.78, 0);
+    cylY(0.20, 0.20, 0.10, M.darkAlu, car, 0, 1.62, 0);
+    cylY(0.15, 0.15, 0.012, M.ink, car, 0, 1.56, 0);
+    ringY(0.24, 0.012, M.alu, car, 0, 1.68, 0);
+    tube([V(0.15, 3.05, -1.05), V(0.35, 3.25, -0.65), V(0.3, 2.9, -0.2), V(0.25, 2.65, 0)], 0.035, M.rubber, car);
     var ring = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.05, 10, 48), glowWhite); ring.rotation.x = Math.PI / 2; ring.position.y = 1.85; car.add(ring);
     var cone = new THREE.Mesh(new THREE.ConeGeometry(0.95, 1.5, 36, 1, true), new THREE.MeshBasicMaterial({ color: C(0xe3b855), transparent: true, opacity: 0.1, side: THREE.DoubleSide, depthWrite: false }));
     cone.position.y = 1.1; car.add(cone);
@@ -267,6 +272,19 @@ export function createReferenceScene(scene) {
     var b = new THREE.Group(); g.add(b);
     mesh(BoxG(3.5, 0.14, 2.4), M.board, b, 0, 0.2, 0);
     mesh(BoxG(0.9, 0.12, 0.9), M.ink, b, -0.5, 0.33, -0.2);
+    var pcbGreen = new THREE.MeshStandardMaterial({ color: 0x174537, metalness: 0.1, roughness: 0.6 });
+    b.children[0].material = pcbGreen;
+    var copper = new THREE.MeshStandardMaterial({ color: 0x987640, metalness: 0.75, roughness: 0.42 });
+    for (var tr = 0; tr < 8; tr++) {
+      mesh(BoxG(1.0 + (tr % 3) * 0.18, 0.008, 0.012), copper, b, 0.4, 0.276, -0.48 + tr * 0.12, 0, 0, 0, true);
+    }
+    for (var pin = 0; pin < 8; pin++) {
+      mesh(BoxG(0.04, 0.02, 0.13), M.alu, b, -0.83 + pin * 0.095, 0.345, 0.29);
+      mesh(BoxG(0.04, 0.02, 0.13), M.alu, b, -0.83 + pin * 0.095, 0.345, -0.69);
+    }
+    [[-1.35,-.7],[-1.2,.35],[.4,.45],[.9,.4]].forEach(function (p) {
+      mesh(rboxZ(.28,.12,.2,.015), M.ink, b, p[0], .35, p[1]);
+    });
     for (var i = 0; i < 10; i++) mesh(BoxG(0.05, 0.36, 0.78), M.alu, b, -0.86 + i * 0.08, 0.57, -0.2);
     for (var c = 0; c < 5; c++) { var x = -1.3 + c * 0.55; cylZ(0.14, 0.4, M.gold, b, x, 0.4, 1.05); cylZ(0.08, 0.42, M.ink, b, x, 0.4, 1.05); }
     mesh(BoxG(0.62, 0.3, 0.36), M.navy, b, 1.15, 0.42, -0.85);

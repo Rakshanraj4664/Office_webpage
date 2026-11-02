@@ -31,7 +31,10 @@ test('API delivers submissions, validates inputs and does not expose an inbox', 
   const port = await unusedPort(); const api = await startApi(port, smtp.server.address().port, 'test-password');
   t.after(() => { api.kill(); });
   const url = `http://127.0.0.1:${port}`;
-  let res = await fetch(url + '/api/inquiries'); assert.equal(res.status, 404);
+  let res = await fetch(url + '/api/whatsapp', { redirect: 'manual' });
+  assert.equal(res.status, 302);
+  assert.equal(res.headers.get('location'), 'https://wa.me/919626528585');
+  res = await fetch(url + '/api/inquiries'); assert.equal(res.status, 404);
   res = await fetch(url + '/api/inquiries', json({})); assert.equal(res.status, 400);
   res = await fetch(url + '/api/inquiries', { ...json(sample), headers: { 'Content-Type': 'application/json', Origin: 'https://evil.test' } }); assert.equal(res.status, 403);
   res = await fetch(url + '/api/inquiries', json(sample)); assert.equal(res.status, 201);

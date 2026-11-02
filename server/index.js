@@ -76,6 +76,12 @@ const server = http.createServer((req, res) => {
     }
   }
 
+  // A server-side redirect keeps the office WhatsApp destination in one place.
+  if (pathname === '/api/whatsapp' && req.method === 'GET') {
+    res.writeHead(302, { Location: 'https://wa.me/919626528585', 'Cache-Control': 'no-store' });
+    return res.end();
+  }
+
   if (pathname === '/api/health' && req.method === 'GET') {
     const cfg = getSmtpConfig();
     return sendJson(res, 200, {
