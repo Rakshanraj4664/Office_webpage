@@ -8,7 +8,7 @@ Requires Node.js 22.13 or later (the built-in SQLite module is experimental in N
 
 ## Email configuration
 
-Copy `.env.example` to `.env` and configure the office SMTP account on the server. Never commit or share credentials. For Google Workspace, use an app password for an account with two-step verification. Set `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` and `OFFICE_EMAIL`; the office address defaults to `tech@protovolt.io`. Port 465 normally uses `SMTP_SECURE=true`; port 587 normally uses `SMTP_SECURE=false` with required STARTTLS. Only set `SITE_ORIGIN` to the exact public HTTPS origin when deploying (or to your local frontend origin for local testing).
+Copy `.env.example` to `.env` and configure the office SMTP account on the server. Never commit or share credentials. For Google Workspace, use an app password for an account with two-step verification. Set `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` and `OFFICE_EMAIL`; the office address defaults to `rakshan4664@gmail.com`. Port 465 normally uses `SMTP_SECURE=true`; port 587 normally uses `SMTP_SECURE=false` with required STARTTLS. Only set `SITE_ORIGIN` to the exact public HTTPS origin when deploying (or to your local frontend origin for local testing).
 
 Run `npm run test:email` to send a real test message **after** configuring SMTP. Confirm it arrives with its calendar attachment. The health endpoint only reports whether a password is configured; it does not verify SMTP connectivity or delivery.
 

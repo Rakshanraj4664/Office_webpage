@@ -3,11 +3,10 @@ import { ArrowRight } from 'lucide-react';
 import Reveal from './Reveal';
 import { COMPANY_INFO, MARQUEE_ITEMS } from '../data/protovoltData';
 
-export default function Hero({ sceneReady }) {
+export default function Hero() {
   return (
     <section>
       <div className="relative isolate overflow-hidden">
-        {!sceneReady && <div className="hero-static-fallback" aria-hidden="true" />}
         {/* A soft scrim keeps the copy legible over the scrolling 3D scene. */}
         <div className="hero-copy-scrim pointer-events-none absolute inset-0" aria-hidden="true" />
         <div className="container-shell relative py-10 sm:py-14 lg:py-16">

@@ -113,3 +113,13 @@ test('review decision requires confirmation, decline is silent, and acceptance c
   assert.match(events[0].url, /sendUpdates=all/);
   response = await post(token2, 'accept'); assert.equal(response.status, 409); assert.equal(events.length, 1);
 });
+
+test('review configuration and storage failures are not reported as invalid form data', async t => {
+  const booking = { dateIso: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10), dateLabel: 'Future', timeSlot: '10:00 AM IST', hourIst: 10, minIst: 0, durationMin: 30, format: 'Video Call (Meet / Teams)', track: 'Concept & Feasibility Review' };
+  const port = await unusedPort();
+  const api = await startApi(port, 12345, 'test-password', { REVIEW_DB_PATH: '/dev/null/reviews.sqlite' });
+  t.after(() => api.kill());
+  const response = await fetch(`http://127.0.0.1:${port}/api/inquiries`, json({ ...sample, inquiryType: 'Architecture Review', booking }));
+  assert.equal(response.status, 503);
+  assert.match((await response.json()).error, /could not process/i);
+});

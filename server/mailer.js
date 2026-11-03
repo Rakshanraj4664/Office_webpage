@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 
 const COMPANY = {
   name: 'Protovolt.io',
-  email: 'tech@protovolt.io',
+  email: 'rakshan4664@gmail.com',
   phone: '+91 96265 28585',
   address: '2/52, Sudha Rice Mill, Nathampalayam, Semnianallur, Avinashi - 641654',
   gst: '33ABJFP3401A1ZY'

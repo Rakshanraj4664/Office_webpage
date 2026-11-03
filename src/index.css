@@ -91,11 +91,6 @@
 }
 .hero-robot-ready { opacity: 1; }
 .hero-robot canvas { display: block; width: 100%; height: 100%; }
-.hero-static-fallback {
-  position: absolute;
-  inset: 0 0 0 35%;
-  background: url('/assets/hero-robotics.jpg') center / cover no-repeat;
-}
 .hero-copy-scrim {
   background: linear-gradient(90deg, #f5f4ef 0%, rgba(245,244,239,.97) 29%, rgba(245,244,239,.55) 47%, rgba(245,244,239,.04) 65%, transparent 78%);
 }
@@ -108,7 +103,6 @@
 }
 .scene-stage-window { min-height: 0; pointer-events: none; }
 @media (max-width: 767px) {
-  .hero-static-fallback { inset: 0; }
   .hero-copy-scrim { background: linear-gradient(90deg, rgba(245,244,239,.97) 0%, rgba(245,244,239,.87) 40%, rgba(245,244,239,.28) 76%, rgba(245,244,239,.10) 100%); }
   .solutions-heading-layout { display: block; min-height: 0; }
   .scene-stage-window { min-height: 135px; }
@@ -116,4 +110,25 @@
 @media (prefers-reduced-motion: reduce) {
   .hero-robot { transition: none; }
   .animate-marquee, .animate-pulseDot { animation: none !important; }
+}
+
+/* A quiet, animated career pathway sits behind the content, not in a separate card. */
+.careers-hero { background: #f5f4ef; }
+.careers-hero-inner { position: relative; min-height: 540px; display: flex; align-items: center; }
+.careers-hero-copy { width: 46%; padding: 72px 0; }
+.careers-background { position: absolute; inset: 0 0 0 50%; overflow: hidden; pointer-events: none; }
+.careers-pathway { width: 100%; height: 100%; display: block; }
+.career-route-flow { animation: career-flow 2.5s linear infinite; }
+.career-node { animation: career-node-glow 5s ease-in-out infinite; }
+.career-node-two { animation-delay: .8s; }
+.career-node-three { animation-delay: 1.6s; }
+@keyframes career-flow { to { stroke-dashoffset: -34; } }
+@keyframes career-node-glow { 0%, 100% { opacity: .8; } 50% { opacity: 1; } }
+@media (max-width: 767px) {
+  .careers-hero-inner { min-height: 560px; align-items: flex-start; }
+  .careers-hero-copy { width: 100%; padding: 56px 0 320px; }
+  .careers-background { inset: auto 0 0; height: 300px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .career-route-flow, .career-node { animation: none; }
 }

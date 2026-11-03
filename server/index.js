@@ -256,7 +256,7 @@ const server = http.createServer((req, res) => {
 
         let review;
         if (inquiryType === 'Architecture Review') {
-          if (!reviewConfigured()) return sendJson(res, 503, { error: 'Review booking is not configured yet. Please email the office directly.' });
+          if (!reviewConfigured()) return sendJson(res, 503, { error: 'Review booking is temporarily unavailable. Please email the office directly.' });
           review = createReview(record);
           // Never return the office-only decision link to the applicant.
           record.decisionUrl = review.url.replace('/review-decision?', '/api/review-decision?');
@@ -268,8 +268,10 @@ const server = http.createServer((req, res) => {
         }
         delete record.decisionUrl;
         return sendJson(res, 201, { status: 'sent', inquiry: record });
-      } catch {
-        return sendJson(res, 400, { error: 'Invalid request payload.' });
+      } catch (error) {
+        if (error instanceof SyntaxError) return sendJson(res, 400, { error: 'Invalid request payload.' });
+        console.error('[Inquiry] Could not process submission:', error.message);
+        return sendJson(res, 503, { error: 'We could not process your request right now. Please try again later or email the office directly.' });
       }
     });
     return;

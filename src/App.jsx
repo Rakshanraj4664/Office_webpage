@@ -58,7 +58,7 @@ function Home() {
       <Navbar scrollProgress={scrollProgress} />
 
       <main className="flex-1">
-        <Hero sceneReady={sceneReady} />
+        <Hero />
         <Capabilities
           selectedScopes={selectedScopes}
           onToggleScope={toggleScope}
