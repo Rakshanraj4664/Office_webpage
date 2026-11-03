@@ -10,7 +10,7 @@ async function main() {
 
   if (!cfg.isConfigured) {
     console.error(
-      '\n[!] SMTP_PASS is not set yet. Copy `.env.example` to `.env` and add your 16-character Google App Password for tech@protovolt.io.'
+      '\n[!] SMTP_PASS is not set yet. Copy `.env.example` to `.env` and add your 16-character Google App Password for the configured SMTP account.'
     );
     process.exit(1);
   }
@@ -37,7 +37,7 @@ async function main() {
       format: 'Video Call (Meet / Teams)'
     },
     overview:
-      'This is an automated test email confirming that your Protovolt.io website backend is connected to Google Workspace SMTP and delivering inquiries & bookings to tech@protovolt.io.',
+      `This is an automated test email checking delivery of inquiries and bookings to ${cfg.officeEmail}.`,
     createdAt: new Date().toISOString()
   };
 

@@ -1,7 +1,7 @@
 export const COMPANY_INFO = {
   name: 'Protovolt.io',
-  email: 'tech@protovolt.io',
-  emailHref: 'mailto:tech@protovolt.io',
+  email: 'rakshan4664@gmail.com',
+  emailHref: 'mailto:rakshan4664@gmail.com',
   phoneDisplay: '+91 96265 28585',
   phoneRaw: '9626528585',
   phoneHref: 'tel:+919626528585',

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, ArrowRight, BriefcaseBusiness, FileText } from 'lucide-react';
 import { COMPANY_INFO } from '../data/protovoltData';
+import CareersBackground from './CareersBackground';
 
 const label = 'block font-display text-sm font-semibold text-ink';
 
@@ -42,12 +43,24 @@ export default function Careers() {
           <a href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-ink-secondary hover:text-volt"><ArrowLeft className="h-4 w-4" /> Back to home</a>
         </div>
       </header>
-      <main className="container-shell py-14 sm:py-20">
+      <main>
+        <section className="careers-hero overflow-hidden border-b border-line-light">
+          <div className="container-shell careers-hero-inner">
+            <CareersBackground />
+            <div className="careers-hero-copy relative z-10">
+              <span className="eyebrow-pill"><span className="h-2 w-2 rounded-full bg-volt" /> Careers at Protovolt</span>
+              <h1 className="mt-5 max-w-lg font-display text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-[56px]">Build what <span className="text-volt">moves industry.</span></h1>
+              <p className="mt-5 max-w-md text-base leading-relaxed text-ink-secondary">Interested in automation, robotics, AI, or building real-world hardware? Tell us about yourself and the work you would like to do.</p>
+              <a href="#apply" className="btn-volt mt-7 px-5 py-3 text-sm">Introduce yourself <ArrowRight className="h-4 w-4" /></a>
+            </div>
+          </div>
+        </section>
+        <section id="apply" className="container-shell py-14 sm:py-20">
         <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
           <div>
-            <span className="eyebrow-pill"><span className="h-2 w-2 rounded-full bg-volt" /> Careers at Protovolt</span>
-            <h1 className="mt-5 max-w-lg font-display text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl">Build what <span className="text-volt">moves industry.</span></h1>
-            <p className="mt-5 max-w-md text-base leading-relaxed text-ink-secondary">Interested in automation, robotics, AI, or building real-world hardware? Tell us about yourself and the work you would like to do.</p>
+            <span className="eyebrow-pill"><span className="h-2 w-2 rounded-full bg-volt" /> Your next chapter</span>
+            <h2 className="mt-4 max-w-sm font-display text-3xl font-bold leading-tight tracking-tight">Let's make something meaningful.</h2>
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-ink-secondary">Every great system starts with people who are curious, practical and ready to build.</p>
             <div className="mt-9 space-y-5 border-t border-line-light pt-7 text-sm text-ink-secondary">
               <div className="flex gap-3"><BriefcaseBusiness className="h-5 w-5 shrink-0 text-volt" /><p><strong className="text-ink">Share your interests</strong><br />Let us know which role or area fits you best.</p></div>
               <div className="flex gap-3"><FileText className="h-5 w-5 shrink-0 text-volt" /><p><strong className="text-ink">Attach your resume</strong><br />PDF, DOC or DOCX, up to 5 MB.</p></div>
@@ -74,6 +87,7 @@ export default function Careers() {
             </form>
           </div>
         </div>
+        </section>
       </main>
       <footer className="border-t border-line-light py-6 text-center text-sm text-ink-muted">&copy; {new Date().getFullYear()} Protovolt.io · <a href={COMPANY_INFO.emailHref} className="hover:text-volt">{COMPANY_INFO.email}</a></footer>
     </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Download, Mail, X } from 'lucide-react';
 import { downloadInquiriesCsv } from '../utils/inquiryStorage';
+import { COMPANY_INFO } from '../data/protovoltData';
 
 export default function InquiriesDrawer({ open, onClose, inquiries }) {
   const [previewItem, setPreviewItem] = useState(null);
@@ -60,7 +61,7 @@ export default function InquiriesDrawer({ open, onClose, inquiries }) {
                   &larr; Back to Inquiries
                 </button>
                 <span className="rounded-full bg-volt-soft px-2.5 py-0.5 font-display text-[11px] font-bold text-volt">
-                  To: {previewItem.emailNotification?.to || 'tech@protovolt.io'}
+                  To: {previewItem.emailNotification?.to || COMPANY_INFO.email}
                 </span>
               </div>
 
